@@ -1,0 +1,15 @@
+{
+  "UniqueName": "APurpleApple.Selene",
+  "Version": "1.6.7",
+  "RequiredApiVersion": "0.1.0",
+  "EntryPointAssembly": "APurpleApple_Selene.dll",
+
+  "UpdateChecks": {
+    "NexusMods": {
+      "ID": 6
+    },
+    "GitHub": {
+      "Repository": "APurpleApple/APurpleApple_Selene"
+    }
+  }
+}

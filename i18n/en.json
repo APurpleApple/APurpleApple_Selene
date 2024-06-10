@@ -1,0 +1,129 @@
+{
+  "artifact": {
+    "IronExpress": {
+      "name": "IRON EXPRESS",
+      "description": "Immediately after you play <c=card>the leftmost/ rightmost card in your hand</c>, your cannon slides left/right 1. Immediately after you play <c=card>the middle card in your hand</c>, your cannon rotates and is replaced by an armored shield, giving you 2 <c=status>SHIELD</c>."
+    },
+    "IronExpressV2": {
+      "name": "SPIN TO WIN",
+      "description": "While in cannon mode, rotating gives you 1 <c=status>OVERDRIVE</c>. While in shield mode, <c=card>the middle card in your hand</c> costs 1 less."
+    },
+    "IronExpressMobius": {
+      "name": "MOBIUS TRACKS",
+      "description": "Attempting to slide the cannon off the ship now teleports it to the opposite side."
+    },
+    "Challenger": {
+      "name": "CHALLENGER",
+      "description": "Attack cards played from the <c=card>left side of your hand</c> fire from the left fist and push the enemy to the right. The opposite is true for the right fist. Attacks from a card in <c=card>the center of your hand</c> are fired by both."
+    },
+    "ChampionBelt": {
+      "name": "FLEXIBLE JOINTS",
+      "description": "If a fist would miss by 1 space, it hits the next part nearest to the center instead."
+    },
+    "Sweatband": {
+      "name": "SWEATBAND",
+      "description": "After taking hull damage, gain 1 <c=status>AUTODODGE RIGHT</c>"
+    },
+    "HighScore": {
+      "name": "HIGH SCORE",
+      "description": "Playing alternating cards from the left and right of your hand gives you a stacking <c=status>HIGH SCORE</c> bonus, that resets when playing 2 cards from the same side in a row."
+    },
+    "Ouranos": {
+      "name": "OURANOS RAILGUN",
+      "description": "At the end of your turn, gain 1 <c=ffe93b>ELECTRIC CHARGE</c>.\n<c=downside>Each turn, any attack card played after the first one will do 0 damage.</c>"
+    },
+    "Ouranos_V2": {
+      "name": "OURANOS RAILGUN V2",
+      "description": "Replaces <c=artifact>OURANOS RAILGUN</c>.\nAt the end of your turn, gain 1 <c=ffe93b>ELECTRIC CHARGE</c>. Your attacks are stored in your cannon and are fired all at once on turn end."
+    },
+    "PowerSurge": {
+      "name": "POWER SURGE",
+      "description": "At the start of combat, gain 2 <c=ffe93b>ELECTRIC CHARGE</c>."
+    },
+    "LightningDrive": {
+      "name": "LIGHTNING DRIVE",
+      "description": "At turn start, if you've got 2 or more <c=ffe93b>ELECTRIC CHARGE</c>, gain 1 <c=status>EVADE</c>."
+    },
+    "Asteroid": {
+      "name": "ASTEROID HULL",
+      "description": "This ship's starting cards allows ejection of most of its parts.\n<c=downside>While a part is ejected, the relevant feature becomes unavailable. (Comms prevents from gaining shield, Engine prevents from moving)</c>"
+    },
+    "Squadron": {
+      "name": "SQUADRON",
+      "description": "Squad members can be moved individually.\nCards are only played by the relevant pilot, or by the <c=ffe93b>squad leader</c> if the pilot isn't present.\nThe <c=ffe93b>squad leader</c> is the last pilot to have moved or played a card. \n<c=downside>When a pilot takes damage, they go missing.</c>"
+    },
+    "Squadron4th": {
+      "name": "THE MORE THE MERRIER",
+      "description": "Gain 1 <c=status>ENERGY</c> every turn.\nOn pickup, adds a random 4th pilot to the squadron, along with their starting cards and artifacts."
+    }
+  },
+  "action": {
+    "TossPart": {
+      "name": "EJECT PART",
+      "description": "Eject the hilighted part until the next turn for <c=damage>1</c> damage.",
+      "description2": "Eject the hilighted part for 2 turns, dealing <c=damage>2</c> damage."
+    }
+  },
+  "ship": {
+    "Rail": {
+      "name": "Iron Express",
+      "description": "A clunky ship featuring a rail mounted cannon, also capable of acting as a shield by rotating on its axis."
+    },
+    "Fist": {
+      "name": "Challenger",
+      "description": "A young ship that dreams of becoming the greatest boxer of its timeline."
+    },
+    "Ouranos": {
+      "name": "Ouranos",
+      "description": "A nimble warship featuring a powerfull, slow shooting railgun."
+    },
+    "Asteroid": {
+      "name": "Shooting Star",
+      "description": "A ship scrapped together from wrecks and asteroid parts."
+    },
+    "Squadron": {
+      "name": "Squadron",
+      "description": "You get a ship, you get a ship, everyone gets a ship !"
+    }
+  },
+  "status": {
+    "ElectricCharge": {
+      "name": "ELECTRIC CHARGE",
+      "description": "Add {0} damage to your next attack card.\n<c=downside>Decreases by 1 when hit.</c>"
+    },
+    "RailgunCharge": {
+      "name": "RAILGUN CHARGE",
+      "description": "Attacks have been loaded into the railgun, and will be release at turn end for {0} damages"
+    }
+  },
+  "tooltips": {
+    "Highscore": {
+      "5": "<c=FFDD00>5+</c> At combat start, gain 2 <c=status>EVADE</c>.",
+      "10": "<c=FFDD00>10+</c> Gain an additional card reward choice.",
+      "20": "<c=FFDD00>25+</c> At turn start, gain 1 <c=status>ENERGY</c>.",
+      "35": "<c=FFDD00>35+</c> Your attacks deal 1 additional damage.",
+      "50": "<c=FFDD00>50+</c> At combat start, heal 1.",
+      "100": "<c=FFDD00>100+</c> Your attacks deal 1 additional damage.",
+      "250": "<c=FFDD00>250+</c> Your attacks deal 1 additional damage.",
+      "500": "<c=FFDD00>500+</c> Your attacks deal 1 additional damage.",
+      "999": "<c=FFDD00>999+</c> At combat start, gain 999 <c=status>POWERDRIVE</c>."
+    }
+  },
+  "card": {
+    "BasicCharge": {
+      "name": "Basic Charge"
+    },
+    "AsteroidShot": {
+      "name": "Basic Shot"
+    },
+    "AsteroidShield": {
+      "name": "Basic Block"
+    },
+    "AsteroidBay": {
+      "name": "Asteroid Shot"
+    },
+    "AsteroidDodge": {
+      "name": "Basic Dodge"
+    }
+  }
+}
