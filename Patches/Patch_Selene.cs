@@ -2,6 +2,7 @@
 using APurpleApple.Selene.ExternalAPIs;
 using FSPRO;
 using HarmonyLib;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,14 +19,7 @@ namespace APurpleApple.Selene.Patches
         {
             Artifact_Selene? artifact_selene = g.state.EnumerateAllArtifacts().FirstOrDefault(a => a is Artifact_Selene) as Artifact_Selene;
             if (artifact_selene == null) return;
-            artifact_selene.droneXLerped = Mutil.SnapLerp(artifact_selene.droneXLerped, artifact_selene.droneX, 25.0, g.dt);
-
-            Rect? rect = default(Rect) + Combat.arenaPos + __instance.GetCamOffset();
-            g.Push(null, rect);
-
-            Draw.Sprite(PMod.sprites["selene_constructorDrone"].ObtainTexture(), rect.Value.x + artifact_selene.droneXLerped * 16 + 20, rect.Value.y + 106 + 32);
-
-            g.Pop();
+            artifact_selene.Render(g, __instance);
         }
 
         [HarmonyPatch(typeof(ADroneMove), nameof(ADroneMove.Begin)), HarmonyPostfix]
@@ -36,6 +30,27 @@ namespace APurpleApple.Selene.Patches
 
             artifact_selene.droneX += __instance.dir;
         }
+
+        [HarmonyPatch(typeof(Ship), nameof(Ship.NormalDamage)), HarmonyPostfix]
+        public static void DestroyBreakableOnHit(State s, Combat c, Ship __instance, int? maybeWorldGridX)
+        {
+            if (__instance != s.ship) return;
+
+            object? obj = null;
+            if (maybeWorldGridX.HasValue)
+            {
+                int valueOrDefault = maybeWorldGridX.GetValueOrDefault();
+                obj = __instance.GetPartAtWorldX(valueOrDefault);
+            }
+
+            Part? part = (Part?)obj;
+
+            if (part != null && part is SelenePart sp && sp.stunModifier == PStunMod.breakable)
+            {
+                sp.Destroy(s, c);
+            }
+        }
+
 
         //[HarmonyPatch(typeof(Kokoro.VanillaMidrowCheckDroneShiftHook), nameof(Kokoro.VanillaMidrowCheckDroneShiftHook.IsDroneShiftPossible)), HarmonyPostfix]
         public static void IsDroneShiftPossible()
@@ -57,6 +72,21 @@ namespace APurpleApple.Selene.Patches
                 });
                 g.state.ship.Add(Status.droneShift, -1);
             }
+        }
+
+        [HarmonyPatch(typeof(AAttack), nameof(AAttack.Begin)), HarmonyPostfix]
+        public static void DestroyTempCannonsOnAttack(G g, State s, Combat c, AAttack __instance)
+        {
+            if (__instance.targetPlayer) return;
+            int? x = __instance.GetFromX(s, c);
+            if (!x.HasValue) return;
+
+            Part? part = g.state.ship.GetPartAtLocalX(x.Value);
+            if (part == null) return;
+
+            if (part is not TemporaryGun tempGun) return;
+            if (g.state.ship.GetPartTypeCount(PType.cannon) > 1 && !__instance.multiCannonVolley) return;
+            tempGun.Destroy(s, c);
         }
 
         [HarmonyPatch(typeof(Combat), nameof(Combat.RenderDroneShiftButtons)), HarmonyPostfix]
@@ -139,6 +169,142 @@ namespace APurpleApple.Selene.Patches
                 originRel = new Vec(0.0, 0.0);
                 Draw.Sprite(platformIcon2, x3, y2, flipX: false, flipY: false, 0.0, null, originRel, null, null, color);
             }
+        }
+
+        [HarmonyPatch(typeof(Combat), nameof(Combat.RenderHintsUnderlay)), HarmonyPostfix]
+        public static void RenderAddPartHint(G g, Combat __instance)
+        {
+            Artifact_Selene? artifact_selene = g.state.EnumerateAllArtifacts().FirstOrDefault(a => a is Artifact_Selene) as Artifact_Selene;
+            if (artifact_selene == null || !artifact_selene.hilight) return;
+
+            if (!__instance.ShouldDrawPlayerUI(g) || !__instance.PlayerCanAct(g.state)) return;
+
+            int insertIndex = artifact_selene.droneX - g.state.ship.x;
+            if (insertIndex < -1) return;
+            if (insertIndex > g.state.ship.parts.Count) return;
+
+            Rect? rect = default(Rect) + Combat.arenaPos;
+            Vec xy = g.Push(null, rect).rect.xy;
+            Vec v = xy + __instance.GetCamOffset();
+            Color value = Colors.attackStatusHintPlayer;
+
+            Vec vec = new Vec(g.state.ship.xLerped * 16.0) + FxPositions.WayBack(insertIndex, false) - new Vec(7.0);
+            Vec vec2 = new Vec(g.state.ship.xLerped * 16.0) + FxPositions.Hull(insertIndex, true) + new Vec(8.0, 50.0);
+            vec = vec.round();
+            vec2 = vec2.round();
+
+            Rect r = Rect.FromPoints(vec, vec2);
+            Draw.Rect(v.x + r.x, v.y + r.y, r.w, r.h, value, BlendMode.Screen);
+
+            if (insertIndex < g.state.ship.parts.Count / 2)
+            {
+                Rect shipRect = g.state.ship.GetShipRect();
+                Draw.Sprite(PMod.sprites["selene_hint_ship_widden"].Sprite, v.x + shipRect.x - 18, v.y + shipRect.y-10, color : value, blend: BlendMode.Screen);
+            }
+            else
+            {
+                Rect shipRect = g.state.ship.GetShipRect();
+                Draw.Sprite(PMod.sprites["selene_hint_ship_widden"].Sprite, v.x + shipRect.x2, v.y + shipRect.y-10, flipX: true, color: value, blend: BlendMode.Screen);
+            }
+
+            g.Pop();
+            artifact_selene.hilight = false;
+        }
+
+
+        [HarmonyPatch(typeof(Ship), nameof(Ship.DrawTopLayer)), HarmonyPostfix]
+        public static void DrawParts(Ship __instance, G __0, Vec __1, Vec __2)
+        {
+            Vec worldPos = __2;
+            Vec v = __1;
+            G g = __0;
+            for (int i = 0; i < __instance.parts.Count; i++)
+            {
+                SelenePart? part = __instance.parts[i] as SelenePart;
+                if (part == null) continue;
+
+                Vec vec2 = worldPos + new Vec((part.xLerped ?? ((double)i)) * 16.0, -32.0 + (__instance.isPlayerShip ? part.offset.y : (1.0 + (0.0 - part.offset.y))));
+                Vec vec3 = v + vec2;
+
+                part.Render(g, vec3);
+            }
+        }
+
+        [HarmonyPatch(typeof(Ship), nameof(Ship.RenderPartUI)), HarmonyPostfix]
+        public static void DrawPartUI(Ship __instance, G g, Combat? combat, Part part, int localX, string keyPrefix, bool isPreview)
+        {
+            if (part is not SelenePart sp) return; 
+            Vec vec = new Vec(localX * 16);
+            int num = (isPreview ? 25 : 34);
+            if (__instance.isPlayerShip)
+            {
+                vec.y -= num - 6;
+            }
+
+            Rect rect = new Rect(vec.x - 1.0, vec.y, 17.0, num);
+            Rect value = rect;
+            value.h -= 8.0;
+            if (!__instance.isPlayerShip)
+            {
+                value.y += 8.0;
+            }
+
+            Box box = g.Push(new UIKey((UK.part), localX, "selenePart"), rect, value);
+            Vec xy = box.rect.xy;
+
+            if (box.IsHover())
+            {
+                Vec pos = xy + new Vec(16.0);
+                g.tooltips.AddGlossary(pos, DB.Join("part.", part.type.Key()));
+
+                if (part.invincible)
+                {
+                    g.tooltips.Add(pos, new TTGlossary("parttrait.invincible"));
+                }
+                else
+                {
+                    if (part.damageModifier == PDamMod.armor)
+                    {
+                        g.tooltips.Add(pos, new TTGlossary("parttrait.armor"));
+                    }
+
+                    if (part.damageModifier == PDamMod.weak)
+                    {
+                        g.tooltips.Add(pos, new TTGlossary("parttrait.weak"));
+                    }
+
+                    if (part.damageModifier == PDamMod.brittle && !part.brittleIsHidden)
+                    {
+                        g.tooltips.Add(pos, new TTGlossary("parttrait.brittle"));
+                    }
+                }
+
+                if (part.stunModifier == PStunMod.stunnable)
+                {
+                    g.tooltips.Add(pos, new TTGlossary("parttrait.stunnable"));
+                }
+
+                if (part.stunModifier == PStunMod.unstunnable)
+                {
+                    g.tooltips.Add(pos, new TTGlossary("parttrait.unstunnable"));
+                }
+
+                if (part.stunModifier == PStunMod.breakable)
+                {
+                    g.tooltips.Add(pos, PMod.glossaries["Breakable"]);
+                }
+
+                if (sp.singleUse)
+                {
+                    g.tooltips.Add(pos, PMod.glossaries["SingleUse"]);
+                }
+                if(sp.removedOnCombatEnd)
+                {
+                    g.tooltips.Add(pos, PMod.glossaries["Temp"]);
+                }
+            }
+            sp.RenderUI(g, xy);
+            g.Pop();
         }
     }
 }

@@ -28,12 +28,10 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="Interfaces\" />
-	  <Folder Include="Parts\" />
 	  <Folder Include="Sprites\Artifacts\" />
 	  <Folder Include="Sprites\Cards\" />
 	  <Folder Include="Sprites\FX\" />
 	  <Folder Include="Sprites\Icons\" />
-	  <Folder Include="Sprites\Parts\" />
 	  <Folder Include="Sprites\UI\" />
 	  <Folder Include="VFXs\" />
 	</ItemGroup>
