@@ -18,8 +18,17 @@ namespace APurpleApple.Selene.CardActions
 
             int insertIndex = artifact_selene.droneX - s.ship.x;
 
-            if (insertIndex < -1) return;
-            if (insertIndex > s.ship.parts.Count) return;
+            if (insertIndex < -1 || insertIndex > s.ship.parts.Count)
+            {
+                artifact_selene.anim = Artifact_Selene.EAnim.PickUpPartForThrow;
+                artifact_selene.animAlpha = 0;
+                artifact_selene.grabbedPart = part;
+                artifact_selene.placeLeft = insertIndex <= s.ship.parts.Count / 2;
+                artifact_selene.grabbedPartSkin = part.skin;
+                c.QueueImmediate(new AThrowPart() { worldX = artifact_selene.droneX, ejectedPart = part});
+                timer = .6;
+                return;
+            }
 
             part = Mutil.DeepCopy(part);
 
@@ -50,14 +59,12 @@ namespace APurpleApple.Selene.CardActions
             s.ship.parts.Insert(insertIndex, part);
 
         }
-
         public override List<Tooltip> GetTooltips(State s)
         {
             List<Tooltip> tooltips = base.GetTooltips(s);
 
             tooltips.Add(PMod.glossaries["AttachPart"]);
-            tooltips.Add(PMod.glossaries[part.tooltip]);
-
+            tooltips.AddRange(part.GetTooltips());
 
             if (part.singleUse)
             {
@@ -70,6 +77,21 @@ namespace APurpleApple.Selene.CardActions
             if (part.stunModifier == PStunMod.breakable)
             {
                 tooltips.Add(PMod.glossaries["Breakable"]);
+            }
+
+            switch (part.damageModifier)
+            {
+                case PDamMod.none:
+                    break;
+                case PDamMod.weak:
+                    tooltips.Add(new TTGlossary("parttrait.weak"));
+                    break;
+                case PDamMod.armor:
+                    tooltips.Add(new TTGlossary("parttrait.armor"));
+                    break;
+                case PDamMod.brittle:
+                    tooltips.Add(new TTGlossary("parttrait.brittle"));
+                    break;
             }
 
             Artifact_Selene? artifact_selene = s.EnumerateAllArtifacts().FirstOrDefault(a => a is Artifact_Selene) as Artifact_Selene;

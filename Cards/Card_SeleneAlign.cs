@@ -42,8 +42,11 @@ namespace APurpleApple.Selene.Cards
                 case Upgrade.A:
                     actions.Add(new ADroneMove() { dir = 1});
                     actions.Add(new AMove() { dir = -1, targetPlayer = true});
+                    actions.Add(new ADrawCard(){count = 1});
                     break;
                 case Upgrade.B:
+                    actions.Add(new ASeleneAlignDrone());
+                    actions.Add(new AStatus() { status = Status.droneShift, statusAmount = 1, targetPlayer = true });
                     break;
                 default:
                     break;
@@ -67,7 +70,6 @@ namespace APurpleApple.Selene.Cards
                     break;
                 case Upgrade.B:
                     data.cost = 1;
-                    data.description = PMod.Instance.Localizations.Localize(["card", "Align", "description"]);
                     break;
             }
             return data;

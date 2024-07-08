@@ -9,10 +9,23 @@ namespace APurpleApple.Selene.CardActions
 {
     internal class ASeleneRemovePart : CardAction
     {
-        public required SelenePart part;
+        public required Part part;
         public override void Begin(G g, State s, Combat c)
         {
-            part.Remove(s);
+            int index = s.ship.parts.IndexOf(part);
+
+            if (index < s.ship.parts.Count / 2)
+            {
+                s.ship.x += 1;
+                s.ship.xLerped = s.ship.x;
+
+                foreach (var part in s.ship.parts)
+                {
+                    part.xLerped -= 1;
+                }
+            }
+
+            s.ship.parts.Remove(part);
         }
     }
 }

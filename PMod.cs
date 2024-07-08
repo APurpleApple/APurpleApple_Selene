@@ -15,6 +15,7 @@ using System.Linq;
 using System.Xml.Linq;
 using APurpleApple.Selene.Patches;
 using APurpleApple.Selene.Cards;
+using Newtonsoft.Json;
 
 namespace APurpleApple.Selene;
 
@@ -28,10 +29,10 @@ public sealed class PMod : SimpleMod
     public static Dictionary<string, IStatusEntry> statuses = new();
     public static Dictionary<string, IPartEntry> parts = new();
     public static Dictionary<string, TTGlossary> glossaries = new();
-    public static Dictionary<string, ICharacterAnimationEntry> animations = new();
+    public static Dictionary<string, ICharacterAnimationEntryV2> animations = new();
     public static Dictionary<string, IArtifactEntry> artifacts = new();
     public static Dictionary<string, ICardEntry> cards = new();
-    public static Dictionary<string, ICharacterEntry> characters = new();
+    public static Dictionary<string, ICharacterEntryV2> characters = new();
     public static Dictionary<string, IShipEntry> ships = new();
     public static Dictionary<string, IDeckEntry> decks = new();
 
@@ -45,11 +46,25 @@ public sealed class PMod : SimpleMod
         typeof(Card_SeleneAttachBay),
         typeof(Card_SeleneAttachShield),
         typeof(Card_SeleneAttachThruster),
-        typeof(Card_SeleneAlign)
+        typeof(Card_SeleneAttachCloaking),
+        typeof(Card_SeleneAttachBubble),
+        typeof(Card_SeleneAlign),
+        typeof(Card_SeleneMagnetize),
+        typeof(Card_SeleneShuffle),
+        typeof(Card_SeleneEjectAll),
+        typeof(Card_SeleneWeld),
+        typeof(Card_SeleneActivateCloak),
+        typeof(Card_SeleneReinforce),
+        typeof(Card_SeleneRecycle),
+        typeof(Card_SeleneDelivery),
+        typeof(Card_RandomAttach),
     ];
 
+
+
     internal static IReadOnlyList<Type> Registered_Artifact_Types { get; } = [
-        typeof(Artifact_Selene)
+        typeof(Artifact_Selene),
+        //typeof(Artifact_SeleneV2),
     ];
 
     public override object? GetApi(IModManifest requestingMod) => new ApiImplementation();
@@ -80,6 +95,7 @@ public sealed class PMod : SimpleMod
         );
 
         RegisterSprite("selene_cdrone_body", "Parts/cdrone_body.png", package);
+        RegisterSprite("selene_cdrone_body_gun", "Parts/cdrone_body_gun.png", package);
         RegisterSprite("selene_cdrone_rail", "Parts/cdrone_rail.png", package);
         RegisterSprite("selene_cdrone_claw", "Parts/cdrone_claw.png", package);
         RegisterSprite("selene_cdrone_top", "Parts/cdrone_top.png", package);
@@ -94,10 +110,11 @@ public sealed class PMod : SimpleMod
         RegisterSprite("selene_part_cannon", "Parts/cannon_temp.png", package);
         RegisterSprite("selene_part_bay", "Parts/bay_temp.png", package);
         RegisterSprite("selene_part_shield", "Parts/shield_temp.png", package);
+        RegisterSprite("selene_part_shieldV2", "Parts/shield_v2_temp.png", package);
         RegisterSprite("selene_part_thruster", "Parts/thruster_temp.png", package);
         RegisterSprite("selene_part_thrusterV2", "Parts/thruster_v2_temp.png", package);
         RegisterSprite("selene_part_cloak", "Parts/cloak_temp.png", package);
-
+        RegisterSprite("selene_part_bubble", "Parts/bubble_bay.png", package);
 
         RegisterSprite("selene_border", "Characters/panel.png", package);
         RegisterSprite("selene_cardBorder", "Cards/border_selene.png", package);
@@ -110,15 +127,23 @@ public sealed class PMod : SimpleMod
         RegisterSprite("selene_neutral_3", "Characters/selene_neutral_3.png", package);
         RegisterSprite("selene_neutral_4", "Characters/selene_neutral_4.png", package);
         RegisterSprite("selene_artifact", "Artifacts/artifact_selene.png", package);
+        RegisterSprite("selene_artifact_gun", "Artifacts/artifact_selene_gun.png", package);
 
         RegisterSprite("icon_attachPart", "Icons/Attach.png", package);
+        RegisterSprite("icon_magPush", "Icons/magPush.png", package);
+        RegisterSprite("icon_magPull", "Icons/magPull.png", package);
+        RegisterSprite("icon_weldPart", "Icons/Weld.png", package);
+        RegisterSprite("icon_alignDrone", "Icons/aligndrone.png", package);
+        RegisterSprite("icon_recyclePart", "Icons/Recycle.png", package);
         RegisterSprite("icon_breakTemp", "Icons/BreakTemp.png", package);
         RegisterSprite("icon_breakTempSingle", "Icons/BreakTempSingle.png", package);
         RegisterSprite("icon_single", "Icons/Single.png", package);
         RegisterSprite("icon_singleTemp", "Icons/SingleTemp.png", package);
+        RegisterSprite("status_reinforce", "Icons/reinforced.png", package);
 
         RegisterSprite("icon_part_cannon", "Icons/Cannon.png", package);
         RegisterSprite("icon_part_shield", "Icons/Shield.png", package);
+        RegisterSprite("icon_part_shield_v2", "Icons/ShieldV2.png", package);
         RegisterSprite("icon_part_thruster_left", "Icons/ThrusterLeft.png", package);
         RegisterSprite("icon_part_thruster_right", "Icons/ThrusterRight.png", package);
         RegisterSprite("icon_part_thruster_v2_left", "Icons/ThrusterV2Left.png", package);
@@ -126,6 +151,7 @@ public sealed class PMod : SimpleMod
         RegisterSprite("icon_part_bay", "Icons/Bay.png", package);
         RegisterSprite("icon_part_drill", "Icons/Drill.png", package);
         RegisterSprite("icon_part_cloak", "Icons/Cloak.png", package);
+        RegisterSprite("icon_part_bubble", "Icons/Bubble.png", package);
 
         glossaries.Add("AttachPart", new CustomTTGlossary(
             CustomTTGlossary.GlossaryType.action,
@@ -134,60 +160,109 @@ public sealed class PMod : SimpleMod
             () => Localizations.Localize(["action", "AttachPart", "description"])
             ));
 
-        glossaries.Add("Part_Cannon", new CustomTTGlossary(
+        glossaries.Add("AlignDrone", new CustomTTGlossary(
             CustomTTGlossary.GlossaryType.action,
+            () => sprites["icon_alignDrone"].Sprite,
+            () => Localizations.Localize(["action", "Align", "name"]),
+            () => Localizations.Localize(["action", "Align", "description"])
+            ));
+
+        glossaries.Add("MagPush", new CustomTTGlossary(
+            CustomTTGlossary.GlossaryType.action,
+            () => sprites["icon_magPush"].Sprite,
+            () => Localizations.Localize(["action", "MagPush", "name"]),
+            () => Localizations.Localize(["action", "MagPush", "description"])
+            ));
+
+        glossaries.Add("MagPull", new CustomTTGlossary(
+            CustomTTGlossary.GlossaryType.action,
+            () => sprites["icon_magPull"].Sprite,
+            () => Localizations.Localize(["action", "MagPull", "name"]),
+            () => Localizations.Localize(["action", "MagPull", "description"])
+            ));
+
+        glossaries.Add("RecyclePart", new CustomTTGlossary(
+            CustomTTGlossary.GlossaryType.action,
+            () => sprites["icon_recyclePart"].Sprite,
+            () => Localizations.Localize(["action", "RecyclePart", "name"]),
+            () => Localizations.Localize(["action", "RecyclePart", "description"])
+            ));
+
+        glossaries.Add("WeldPart", new CustomTTGlossary(
+            CustomTTGlossary.GlossaryType.action,
+            () => sprites["icon_weldPart"].Sprite,
+            () => Localizations.Localize(["action", "WeldPart", "name"]),
+            () => Localizations.Localize(["action", "WeldPart", "description"])
+            ));
+
+        glossaries.Add("Part_Cannon", new CustomTTGlossary(
+            CustomTTGlossary.GlossaryType.part,
             () => sprites["icon_part_cannon"].Sprite,
             () => Localizations.Localize(["parts", "Cannon", "name"]),
             () => Localizations.Localize(["parts", "Cannon", "description"])
             ));
 
         glossaries.Add("Part_Bay", new CustomTTGlossary(
-            CustomTTGlossary.GlossaryType.action,
+            CustomTTGlossary.GlossaryType.part,
             () => sprites["icon_part_bay"].Sprite,
             () => Localizations.Localize(["parts", "Bay", "name"]),
             () => Localizations.Localize(["parts", "Bay", "description"])
             ));
 
         glossaries.Add("Part_ThrusterLeft", new CustomTTGlossary(
-            CustomTTGlossary.GlossaryType.action,
+            CustomTTGlossary.GlossaryType.part,
             () => sprites["icon_part_thruster_left"].Sprite,
             () => Localizations.Localize(["parts", "ThrusterLeft", "name"]),
             () => Localizations.Localize(["parts", "ThrusterLeft", "description"])
             ));
 
         glossaries.Add("Part_ThrusterRight", new CustomTTGlossary(
-            CustomTTGlossary.GlossaryType.action,
+            CustomTTGlossary.GlossaryType.part,
             () => sprites["icon_part_thruster_right"].Sprite,
             () => Localizations.Localize(["parts", "ThrusterRight", "name"]),
             () => Localizations.Localize(["parts", "ThrusterRight", "description"])
             ));
 
         glossaries.Add("Part_ThrusterV2Left", new CustomTTGlossary(
-            CustomTTGlossary.GlossaryType.action,
+            CustomTTGlossary.GlossaryType.part,
             () => sprites["icon_part_thruster_v2_left"].Sprite,
             () => Localizations.Localize(["parts", "ThrusterV2Left", "name"]),
             () => Localizations.Localize(["parts", "ThrusterV2Left", "description"])
             ));
 
         glossaries.Add("Part_ThrusterV2Right", new CustomTTGlossary(
-            CustomTTGlossary.GlossaryType.action,
+            CustomTTGlossary.GlossaryType.part,
             () => sprites["icon_part_thruster_v2_right"].Sprite,
             () => Localizations.Localize(["parts", "ThrusterV2Right", "name"]),
             () => Localizations.Localize(["parts", "ThrusterV2Right", "description"])
             ));
 
         glossaries.Add("Part_Shield", new CustomTTGlossary(
-            CustomTTGlossary.GlossaryType.action,
+            CustomTTGlossary.GlossaryType.part,
             () => sprites["icon_part_shield"].Sprite,
             () => Localizations.Localize(["parts", "Shield", "name"]),
             () => Localizations.Localize(["parts", "Shield", "description"])
             ));
 
+        glossaries.Add("Part_ShieldV2", new CustomTTGlossary(
+            CustomTTGlossary.GlossaryType.part,
+            () => sprites["icon_part_shield_v2"].Sprite,
+            () => Localizations.Localize(["parts", "ShieldV2", "name"]),
+            () => Localizations.Localize(["parts", "ShieldV2", "description"])
+            ));
+
         glossaries.Add("Part_Cloak", new CustomTTGlossary(
-            CustomTTGlossary.GlossaryType.action,
+            CustomTTGlossary.GlossaryType.part,
             () => sprites["icon_part_cloak"].Sprite,
             () => Localizations.Localize(["parts", "Cloak", "name"]),
             () => Localizations.Localize(["parts", "Cloak", "description"])
+            ));
+
+        glossaries.Add("Part_Bubble", new CustomTTGlossary(
+            CustomTTGlossary.GlossaryType.part,
+            () => sprites["icon_part_bubble"].Sprite,
+            () => Localizations.Localize(["parts", "Bubble", "name"]),
+            () => Localizations.Localize(["parts", "Bubble", "description"])
             ));
 
         glossaries.Add("SingleUse", new CustomTTGlossary(
@@ -211,12 +286,27 @@ public sealed class PMod : SimpleMod
             () => Localizations.Localize(["partTrait", "Breakable", "description"])
             ));
 
+        statuses["reinforce"] = helper.Content.Statuses.RegisterStatus("reinforce", new StatusConfiguration() {
+            Definition = new StatusDef()
+            {
+                isGood = true,
+                icon = sprites["status_reinforce"].Sprite,
+                affectedByTimestop = false,
+                border = new Color("a8a8a8"),
+                color = new Color("a8a8a8")
+            },
+            Description = AnyLocalizations.Bind(["status", "Reinforce", "description"]).Localize,
+            Name = AnyLocalizations.Bind(["status", "Reinforce", "name"]).Localize
+        });
+
         parts["selene_cannon"] = helper.Content.Ships.RegisterPart("selene_cannon", new PartConfiguration() { Sprite = sprites["selene_part_cannon"].Sprite, DisabledSprite = SSpr.parts_scaffolding });
         parts["selene_bay"] = helper.Content.Ships.RegisterPart("selene_bay", new PartConfiguration() { Sprite = sprites["selene_part_bay"].Sprite, DisabledSprite = SSpr.parts_scaffolding });
         parts["selene_shield"] = helper.Content.Ships.RegisterPart("selene_shield", new PartConfiguration() { Sprite = sprites["selene_part_shield"].Sprite, DisabledSprite = SSpr.parts_scaffolding });
+        parts["selene_shieldV2"] = helper.Content.Ships.RegisterPart("selene_shieldV2", new PartConfiguration() { Sprite = sprites["selene_part_shieldV2"].Sprite, DisabledSprite = SSpr.parts_scaffolding });
         parts["selene_thruster"] = helper.Content.Ships.RegisterPart("selene_thruster", new PartConfiguration() { Sprite = sprites["selene_part_thruster"].Sprite, DisabledSprite = SSpr.parts_scaffolding });
         parts["selene_thrusterV2"] = helper.Content.Ships.RegisterPart("selene_thrusterV2", new PartConfiguration() { Sprite = sprites["selene_part_thrusterV2"].Sprite, DisabledSprite = SSpr.parts_scaffolding });
         parts["selene_cloak"] = helper.Content.Ships.RegisterPart("selene_cloak", new PartConfiguration() { Sprite = sprites["selene_part_cloak"].Sprite, DisabledSprite = SSpr.parts_scaffolding });
+        parts["selene_bubble"] = helper.Content.Ships.RegisterPart("selene_bubble", new PartConfiguration() { Sprite = sprites["selene_part_bubble"].Sprite, DisabledSprite = SSpr.parts_scaffolding });
 
         decks["selene"] = helper.Content.Decks.RegisterDeck("selene", 
             new DeckConfiguration() { 
@@ -225,17 +315,17 @@ public sealed class PMod : SimpleMod
             Name = AnyLocalizations.Bind(["characters", "Selene", "name"]).Localize,
             Definition = new DeckDef() { color = new Color("E77FDB"), titleColor = Colors.black } });
 
-        animations["selene_mini"] = helper.Content.Characters.RegisterCharacterAnimation(
-            new CharacterAnimationConfiguration() { 
-                Deck = decks["selene"].Deck,
+        animations["selene_mini"] = helper.Content.Characters.V2.RegisterCharacterAnimation(
+            new CharacterAnimationConfigurationV2() {
+                CharacterType = decks["selene"].UniqueName,
                 Frames = [ sprites["selene_mini"].Sprite ],
                 LoopTag = "mini"
             });
 
-        animations["selene_neutral"] = helper.Content.Characters.RegisterCharacterAnimation(
-            new CharacterAnimationConfiguration()
+        animations["selene_neutral"] = helper.Content.Characters.V2.RegisterCharacterAnimation(
+            new CharacterAnimationConfigurationV2()
             {
-                Deck = decks["selene"].Deck,
+                CharacterType = decks["selene"].UniqueName,
                 Frames = [
                     sprites["selene_neutral_0"].Sprite,
                     sprites["selene_neutral_1"].Sprite,
@@ -245,9 +335,9 @@ public sealed class PMod : SimpleMod
                 ],
                 LoopTag = "neutral"
             });
-
-        characters["selene"] = helper.Content.Characters.RegisterCharacter("Selene", 
-            new CharacterConfiguration() { 
+        
+        characters["selene"] = helper.Content.Characters.V2.RegisterPlayableCharacter("Selene", 
+            new PlayableCharacterConfigurationV2() {
                 Description = AnyLocalizations.Bind(["characters", "Selene", "description"]).Localize,
                 BorderSprite = sprites["selene_border"].Sprite,
                 Deck = decks["selene"].Deck,
@@ -268,11 +358,10 @@ public sealed class PMod : SimpleMod
             if (e == ModLoadPhase.AfterDbInit)
             {
                 kokoroApi = helper.ModRegistry.GetApi<IKokoroApi>("Shockah.Kokoro");
-                kokoroAssembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(assembly => assembly.GetName().Name == "Kokoro");
 
                 Patch();
             }
         };
-    }
 
+    }
 }

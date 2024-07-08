@@ -1,7 +1,9 @@
 ﻿using APurpleApple.Selene.Artifacts;
 using APurpleApple.Selene.ExternalAPIs;
+using APurpleApple.Selene.Parts;
 using FSPRO;
 using HarmonyLib;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -31,49 +33,6 @@ namespace APurpleApple.Selene.Patches
             artifact_selene.droneX += __instance.dir;
         }
 
-        [HarmonyPatch(typeof(Ship), nameof(Ship.NormalDamage)), HarmonyPostfix]
-        public static void DestroyBreakableOnHit(State s, Combat c, Ship __instance, int? maybeWorldGridX)
-        {
-            if (__instance != s.ship) return;
-
-            object? obj = null;
-            if (maybeWorldGridX.HasValue)
-            {
-                int valueOrDefault = maybeWorldGridX.GetValueOrDefault();
-                obj = __instance.GetPartAtWorldX(valueOrDefault);
-            }
-
-            Part? part = (Part?)obj;
-
-            if (part != null && part is SelenePart sp && sp.stunModifier == PStunMod.breakable)
-            {
-                sp.Destroy(s, c);
-            }
-        }
-
-
-        //[HarmonyPatch(typeof(Kokoro.VanillaMidrowCheckDroneShiftHook), nameof(Kokoro.VanillaMidrowCheckDroneShiftHook.IsDroneShiftPossible)), HarmonyPostfix]
-        public static void IsDroneShiftPossible()
-        {
-            Console.WriteLine("heyeuhqdkshl");
-        }
-
-        [HarmonyPatch(typeof(Combat), nameof(Combat.DoDroneShift)), HarmonyPostfix]
-        public static void DoDroneShiftAnyway(G g, int dir, Combat __instance)
-        {
-            Artifact_Selene? artifact_selene = g.state.EnumerateAllArtifacts().FirstOrDefault(a => a is Artifact_Selene) as Artifact_Selene;
-            if (artifact_selene == null) return;
-
-            if (g.state.route is Combat combat && (combat.stuff.Count == 0))
-            {
-                __instance.Queue(new ADroneMove
-                {
-                    dir = dir
-                });
-                g.state.ship.Add(Status.droneShift, -1);
-            }
-        }
-
         [HarmonyPatch(typeof(AAttack), nameof(AAttack.Begin)), HarmonyPostfix]
         public static void DestroyTempCannonsOnAttack(G g, State s, Combat c, AAttack __instance)
         {
@@ -86,89 +45,34 @@ namespace APurpleApple.Selene.Patches
 
             if (part is not TemporaryGun tempGun) return;
             if (g.state.ship.GetPartTypeCount(PType.cannon) > 1 && !__instance.multiCannonVolley) return;
+            if (!tempGun.singleUse) return;
+
+            if (s.ship.Get(PMod.statuses["reinforce"].Status) > 0)
+            {
+                c.QueueImmediate(new AStatus() { status = PMod.statuses["reinforce"].Status, statusAmount = -1, targetPlayer = true });
+                return;
+            }
             tempGun.Destroy(s, c);
         }
 
-        [HarmonyPatch(typeof(Combat), nameof(Combat.RenderDroneShiftButtons)), HarmonyPostfix]
-        public static void RenderDroneShiftAnyway(G g, Combat __instance)
+        [HarmonyPatch(typeof(ASpawn), nameof(ASpawn.Begin)), HarmonyPostfix]
+        public static void DestroyTempBaysOnSpawn(G g, State s, Combat c, ASpawn __instance)
         {
-            Artifact_Selene? artifact_selene = g.state.EnumerateAllArtifacts().FirstOrDefault(a => a is Artifact_Selene) as Artifact_Selene;
-            if (artifact_selene == null) return;
+            if (!__instance.fromPlayer) return;
 
-            if (__instance.isPlayerTurn && g.state.ship.hull > 0 && __instance.otherShip.hull > 0 && g.state.ship.Get(Status.droneShift) > 0 && (!(g.state.route is Combat combat) || (combat.stuff.Count == 0 )))
+            Part? part = g.state.ship.GetPartAtLocalX(__instance.fromX ?? 0);
+            if (part == null) return;
+
+            if (part is not TemporaryBay tempBay) return;
+            if (g.state.ship.GetPartTypeCount(PType.cannon) > 1 && !__instance.multiBayVolley) return;
+            if (!tempBay.singleUse) return;
+
+            if (s.ship.Get(PMod.statuses["reinforce"].Status) > 0)
             {
-                int num = 72;
-                G g2 = g;
-                UIKey uIKey = UK.btn_moveDrones_left;
-                Rect rect = new Rect(Combat.cardCenter.x - (double)num - 22.0, 58.0, 22.0, 21.0);
-                UIKey uIKey2 = uIKey;
-                Spr spr = PlatformIcons.GetPlatform() switch
-                {
-                    Platform.Xbox => Spr.buttons_moveDrone_big,
-                    Platform.PS => Spr.buttons_moveDrone_big,
-                    _ => Spr.buttons_moveDrone,
-                };
-                Spr spr2 = PlatformIcons.GetPlatform() switch
-                {
-                    Platform.Xbox => Spr.buttons_moveDrone_big_on,
-                    Platform.PS => Spr.buttons_moveDrone_big_on,
-                    _ => Spr.buttons_moveDrone_on,
-                };
-                G g3 = g2;
-                Rect rect2 = rect;
-                UIKey key = uIKey2;
-                Spr sprite = spr;
-                Spr spriteHover = spr2;
-                OnMouseDown onMouseDown = __instance;
-                bool showAsPressed = !__instance.eyeballPeek && Input.GetGpHeld(Btn.BumperL);
-                SharedArt.ButtonResult buttonResult = SharedArt.ButtonSprite(g3, rect2, key, sprite, spriteHover, null, null, inactive: false, flipX: true, flipY: false, onMouseDown, autoFocus: false, noHover: false, showAsPressed, gamepadUntargetable: true);
-                if (buttonResult.isHover)
-                {
-                    __instance.isHoveringDroneMove = 2;
-                }
-
-                Spr? platformIcon = PlatformIcons.GetPlatformIcon(Btn.BumperL);
-                double x2 = buttonResult.v.x + 19.0;
-                double y = buttonResult.v.y + 6.0 + (double)((buttonResult.isHover || (!__instance.eyeballPeek && Input.GetGpHeld(Btn.BumperL))) ? 1 : 0);
-                Color? color = Colors.moveDroneButtons.fadeAlpha(0.5);
-                Vec? originRel = new Vec(1.0);
-                Draw.Sprite(platformIcon, x2, y, flipX: false, flipY: false, 0.0, null, originRel, null, null, color);
-                g2 = g;
-                UIKey uIKey3 = UK.btn_moveDrones_right;
-                rect = new Rect(Combat.cardCenter.x + (double)num + 1.0, 58.0, 18.0, 21.0);
-                uIKey2 = uIKey3;
-                spr = PlatformIcons.GetPlatform() switch
-                {
-                    Platform.Xbox => Spr.buttons_moveDrone_big,
-                    Platform.PS => Spr.buttons_moveDrone_big,
-                    _ => Spr.buttons_moveDrone,
-                };
-                Spr spr3 = PlatformIcons.GetPlatform() switch
-                {
-                    Platform.Xbox => Spr.buttons_moveDrone_big_on,
-                    Platform.PS => Spr.buttons_moveDrone_big_on,
-                    _ => Spr.buttons_moveDrone_on,
-                };
-                G g4 = g2;
-                Rect rect3 = rect;
-                UIKey key2 = uIKey2;
-                Spr sprite2 = spr;
-                Spr spriteHover2 = spr3;
-                onMouseDown = __instance;
-                showAsPressed = !__instance.eyeballPeek && Input.GetGpHeld(Btn.BumperR);
-                SharedArt.ButtonResult buttonResult2 = SharedArt.ButtonSprite(g4, rect3, key2, sprite2, spriteHover2, null, null, inactive: false, flipX: false, flipY: false, onMouseDown, autoFocus: false, noHover: false, showAsPressed, gamepadUntargetable: true);
-                if (buttonResult2.isHover)
-                {
-                    __instance.isHoveringDroneMove = 2;
-                }
-
-                Spr? platformIcon2 = PlatformIcons.GetPlatformIcon(Btn.BumperR);
-                double x3 = buttonResult2.v.x + 3.0;
-                double y2 = buttonResult2.v.y + 6.0 + (double)((buttonResult2.isHover || (!__instance.eyeballPeek && Input.GetGpHeld(Btn.BumperR))) ? 1 : 0);
-                color = Colors.moveDroneButtons.fadeAlpha(0.5);
-                originRel = new Vec(0.0, 0.0);
-                Draw.Sprite(platformIcon2, x3, y2, flipX: false, flipY: false, 0.0, null, originRel, null, null, color);
+                c.QueueImmediate(new AStatus() { status = PMod.statuses["reinforce"].Status, statusAmount = -1, targetPlayer = true });
+                return;
             }
+            tempBay.Destroy(s, c);
         }
 
         [HarmonyPatch(typeof(Combat), nameof(Combat.RenderHintsUnderlay)), HarmonyPostfix]
@@ -180,8 +84,6 @@ namespace APurpleApple.Selene.Patches
             if (!__instance.ShouldDrawPlayerUI(g) || !__instance.PlayerCanAct(g.state)) return;
 
             int insertIndex = artifact_selene.droneX - g.state.ship.x;
-            if (insertIndex < -1) return;
-            if (insertIndex > g.state.ship.parts.Count) return;
 
             Rect? rect = default(Rect) + Combat.arenaPos;
             Vec xy = g.Push(null, rect).rect.xy;
@@ -195,6 +97,13 @@ namespace APurpleApple.Selene.Patches
 
             Rect r = Rect.FromPoints(vec, vec2);
             Draw.Rect(v.x + r.x, v.y + r.y, r.w, r.h, value, BlendMode.Screen);
+
+            if (insertIndex < -1 || insertIndex > g.state.ship.parts.Count)
+            {
+                g.Pop();
+                artifact_selene.hilight = false;
+                return;
+            }
 
             if (insertIndex < g.state.ship.parts.Count / 2)
             {
@@ -221,19 +130,71 @@ namespace APurpleApple.Selene.Patches
             for (int i = 0; i < __instance.parts.Count; i++)
             {
                 SelenePart? part = __instance.parts[i] as SelenePart;
-                if (part == null) continue;
+                if (part == null || part.isRendered == false) continue;
 
                 Vec vec2 = worldPos + new Vec((part.xLerped ?? ((double)i)) * 16.0, -32.0 + (__instance.isPlayerShip ? part.offset.y : (1.0 + (0.0 - part.offset.y))));
                 Vec vec3 = v + vec2;
 
-                part.Render(g, vec3);
+                part.Render(g, vec3, i);
+            }
+        }
+
+        [HarmonyPatch(typeof(AAttack), nameof(AAttack.Begin)), HarmonyPostfix]
+        public static void ConstructorDroneDodgeAnim(AAttack __instance, Combat c, State s)
+        {
+            if (!__instance.targetPlayer) return;
+            Artifact_Selene? art = s.EnumerateAllArtifacts().FirstOrDefault((a)=> a is Artifact_Selene) as Artifact_Selene;
+            if (art == null) return;
+            int? num = __instance.GetFromX(s, c);
+            RaycastResult? raycastResult = (__instance.fromDroneX.HasValue ? CombatUtils.RaycastGlobal(c, s.ship, fromDrone: true, __instance.fromDroneX.Value) : (num.HasValue ? CombatUtils.RaycastFromShipLocal(s, c, num.Value, true) : null));
+            if (raycastResult == null) return;
+            if (art.droneX != raycastResult.worldX) return;
+            if (raycastResult.hitDrone || raycastResult.hitShip) return;
+
+            art.droneXLerped += art.dodgeLeft ? -1.5 : 1.5;
+            art.dodgeLeft = !art.dodgeLeft;
+        }
+
+        [HarmonyPatch(typeof(AEnemyTurnAfter), nameof(AEnemyTurnAfter.Begin)), HarmonyPrefix]
+        public static void NoEmptyFix(G g, State s, Combat c)
+        {
+            for (int i = 0; i < s.ship.parts.Count; i++)
+            {
+                if (s.ship.parts[i] is CloakedPart cp)
+                {
+                    cp.OnTurnStart(s, c);
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(Ship), nameof(Ship.ModifyDamageDueToParts)), HarmonyPostfix]
+        public static void ReduceDamageToPartProtectedByShield(Ship __instance, State s, Combat c, Part part, ref int __result)
+        {
+            int partLocalX = __instance.parts.IndexOf(part);
+            int protection = 0;
+            for (int i = int.Max(partLocalX -1, 0); i < int.Min(partLocalX +2, __instance.parts.Count); i++)
+            {
+                if (__instance.parts[i] is ShieldProjector sp)
+                {
+                    protection = int.Max(sp.blocked, protection);
+                }
+            }
+
+            __result -= protection;
+            if (protection > 0)
+            {
+                c.fx.Add(new ShieldHit
+                {
+                    pos = FxPositions.Shield(__instance.x + partLocalX, __instance == s.ship)
+                });
+                ParticleBursts.ShieldImpact(MG.inst.g, FxPositions.Shield(__instance.x + partLocalX, __instance == s.ship), __instance == s.ship);
             }
         }
 
         [HarmonyPatch(typeof(Ship), nameof(Ship.RenderPartUI)), HarmonyPostfix]
         public static void DrawPartUI(Ship __instance, G g, Combat? combat, Part part, int localX, string keyPrefix, bool isPreview)
         {
-            if (part is not SelenePart sp) return; 
+            if (part is not SelenePart sp || sp.isRendered == false) return; 
             Vec vec = new Vec(localX * 16);
             int num = (isPreview ? 25 : 34);
             if (__instance.isPlayerShip)
@@ -255,7 +216,11 @@ namespace APurpleApple.Selene.Patches
             if (box.IsHover())
             {
                 Vec pos = xy + new Vec(16.0);
-                g.tooltips.AddGlossary(pos, DB.Join("part.", part.type.Key()));
+
+                foreach (var item in sp.GetTooltips())
+                {
+                    g.tooltips.Add(pos, item);
+                }
 
                 if (part.invincible)
                 {

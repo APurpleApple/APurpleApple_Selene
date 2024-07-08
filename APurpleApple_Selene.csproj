@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <RootNamespace>APurpleApple.Selene</RootNamespace>
-        <Version>1.6.7</Version>
+        <Version>0.1.0</Version>
 		<IsLegacyMod>false</IsLegacyMod>
         <IncludedModProjectPaths>i18n;assets</IncludedModProjectPaths>
         <TargetFramework>net8.0</TargetFramework>
@@ -27,12 +27,16 @@
 		</Content>
 	</ItemGroup>
 	<ItemGroup>
+	  <Compile Remove="Sprites\FX\PartEjection.cs" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Content Include="VFXs\VFX_PartEjection.cs" />
+	</ItemGroup>
+	<ItemGroup>
 	  <Folder Include="Interfaces\" />
 	  <Folder Include="Sprites\Artifacts\" />
 	  <Folder Include="Sprites\Cards\" />
-	  <Folder Include="Sprites\FX\" />
 	  <Folder Include="Sprites\Icons\" />
 	  <Folder Include="Sprites\UI\" />
-	  <Folder Include="VFXs\" />
 	</ItemGroup>
 </Project>

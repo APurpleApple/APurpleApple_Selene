@@ -1,6 +1,6 @@
 {
   "UniqueName": "APurpleApple.Selene",
-  "Version": "1.6.7",
+  "Version": "0.1.0",
   "RequiredApiVersion": "0.1.0",
   "EntryPointAssembly": "APurpleApple_Selene.dll",
 
@@ -11,5 +11,11 @@
     "GitHub": {
       "Repository": "APurpleApple/APurpleApple_Selene"
     }
-  }
+  },
+  "Dependencies": [
+    {
+      "UniqueName": "Shockah.Kokoro",
+      "Version": "1.8.0"
+    }
+  ]
 }

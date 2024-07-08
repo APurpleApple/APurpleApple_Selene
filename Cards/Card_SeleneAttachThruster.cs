@@ -33,40 +33,61 @@ namespace APurpleApple.Selene.Cards
         {
             List<CardAction> actions = new List<CardAction>();
 
-            if (flipped)
+            switch (upgrade)
             {
-                actions.Add(new ASeleneInsertPart()
-                {
-                    part = new PartThruster()
+                case Upgrade.None:
+                    actions.Add(new ASeleneInsertPart()
                     {
-                        skin = PMod.parts["selene_thruster"].UniqueName,
-                        flip = true,
-                        type = PType.special,
-                        icon = PMod.sprites["icon_part_thruster_right"].Sprite,
-                        stunModifier = PStunMod.breakable,
-                        tooltip = "Part_ThrusterRight",
-                        singleUse = false,
-                        removedOnCombatEnd = true,
-                    }
-                });
-            }
-            else
-            {
-                actions.Add(new ASeleneInsertPart()
-                {
-                    part = new PartThruster()
+                        part = new PartThruster()
+                        {
+                            skin = PMod.parts["selene_thruster"].UniqueName,
+                            flip = flipped,
+                            type = PType.special,
+                            icon = PMod.sprites[flipped ? "icon_part_thruster_right" : "icon_part_thruster_left"].Sprite,
+                            stunModifier = PStunMod.breakable,
+                            tooltip = flipped ? "Part_ThrusterRight" : "Part_ThrusterLeft",
+                            singleUse = false,
+                            removedOnCombatEnd = true,
+                        }
+                    });
+                    break;
+                case Upgrade.A:
+                    actions.Add(new ASeleneInsertPart()
                     {
-                        skin = PMod.parts["selene_thruster"].UniqueName,
-                        type = PType.special,
-                        icon = PMod.sprites["icon_part_thruster_left"].Sprite,
-                        stunModifier = PStunMod.breakable,
-                        tooltip = "Part_ThrusterLeft",
-                        singleUse = false,
-                        removedOnCombatEnd = true,
-                    }
-                });
+                        part = new PartThruster()
+                        {
+                            skin = PMod.parts["selene_thrusterV2"].UniqueName,
+                            flip = flipped,
+                            type = PType.special,
+                            icon = PMod.sprites[flipped ? "icon_part_thruster_v2_right" : "icon_part_thruster_v2_left"].Sprite,
+                            stunModifier = PStunMod.breakable,
+                            tooltip = flipped ? "Part_ThrusterV2Right" : "Part_ThrusterV2Left",
+                            singleUse = false,
+                            upgraded = true,
+                            removedOnCombatEnd = true,
+                        }
+                    });
+                    break;
+                case Upgrade.B:
+                    actions.Add(new ASeleneInsertPart()
+                    {
+                        part = new PartThruster()
+                        {
+                            skin = PMod.parts["selene_thruster"].UniqueName,
+                            flip = flipped,
+                            type = PType.special,
+                            icon = PMod.sprites[flipped ? "icon_part_thruster_right" : "icon_part_thruster_left"].Sprite,
+                            stunModifier = PStunMod.breakable,
+                            tooltip = flipped ? "Part_ThrusterRight" : "Part_ThrusterLeft",
+                            singleUse = false,
+                            removedOnCombatEnd = true,
+                        }
+                    });
+                    actions.Add(new AStatus() { status = SStatus.evade, statusAmount = 1, targetPlayer = true});
+                    break;
+                default:
+                    break;
             }
-            
 
             return actions;
         }

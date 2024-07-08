@@ -9,8 +9,14 @@ using System.Threading.Tasks;
 
 namespace APurpleApple.Selene.Artifacts
 {
-    internal class Artifact_Selene : Artifact, IModArtifact
+    internal class Artifact_Selene : Artifact, IModArtifact, IDroneShiftHook, IHookPriority, IEvadeHook
     {
+        public bool dodgeLeft = false;
+
+        public static Artifact_Selene? Find(State s)
+        {
+            return s.EnumerateAllArtifacts().FirstOrDefault(a => a is Artifact_Selene) as Artifact_Selene;
+        }
         public static void Register(IModHelper helper)
         {
             Type type = MethodBase.GetCurrentMethod()!.DeclaringType!;
@@ -29,6 +35,32 @@ namespace APurpleApple.Selene.Artifacts
             });
         }
 
+        public bool? IsDroneShiftPossible(State state, Combat combat, DroneShiftHookContext context)
+        {
+            if (context == DroneShiftHookContext.Rendering && state.ship.Get(Status.droneShift) > 0)
+            {
+                return true;
+            }
+
+            return null;
+        }
+
+        public void AfterDroneShift(State state, Combat combat, int direction, IDroneShiftHook hook)
+        {
+            foreach (SelenePart item in state.ship.parts.Where(p => p is SelenePart).ToList())
+            {
+                item.AfterDroneShift(state, combat, direction);
+            }
+        }
+
+        public void AfterEvade(State state, Combat combat, int direction, IEvadeHook hook)
+        {
+            foreach (SelenePart item in state.ship.parts.Where(p => p is SelenePart).ToList())
+            {
+                item.AfterPlayerMove(state, combat, direction);
+            }
+        }
+
         public int droneX = 0;
         public double droneXLerped = 0;
         public int craneExtension = 0;
@@ -41,7 +73,7 @@ namespace APurpleApple.Selene.Artifacts
         public double clawOpeningLerped = 0;
 
         public bool placeLeft = false;
-        public Part? grabbedPart;
+        public SelenePart? grabbedPart;
         public string? grabbedPartSkin;
 
         public bool hilight = false;
@@ -49,12 +81,13 @@ namespace APurpleApple.Selene.Artifacts
         public double animAlpha = 1;
         public EAnim anim = EAnim.Rest;
 
+        public double HookPriority => 3_000_000_000;
+
         public void Render(G g, Combat c)
         {
-            droneXLerped = Mutil.SnapLerp(droneXLerped, droneX, 25.0, g.dt);
+            droneXLerped = Mutil.SnapLerp(droneXLerped, droneX, 10.0, g.dt);
 
             double speed = 2;
-            animAlpha = Mutil.SnapLerp(animAlpha, 1, 4 * speed, g.dt);
 
             switch (anim)
             {
@@ -76,9 +109,22 @@ namespace APurpleApple.Selene.Artifacts
                     clawAngle = craneAngle;
                     clawOpening = 8;
                     break;
-                default:
+                case EAnim.PickUpPartForThrow:
+                    craneAngle = double.Pi;
+                    craneExtension = 16;
+                    clawAngle = craneAngle;
+                    clawOpening = 8;
+                    break;
+                case EAnim.Throw:
+                    craneAngle = placeLeft ? -double.Pi * .16 : double.Pi * .16;
+                    craneExtension = 16;
+                    clawAngle = craneAngle;
+                    clawOpening = 8;
+                    speed *= 2;
                     break;
             }
+
+            animAlpha = Mutil.SnapLerp(animAlpha, 1, 4 * speed, g.dt);
 
             craneExtensionLerped = Mutil.SnapLerp(craneExtensionLerped, craneExtension, 8 * speed, g.dt);
             craneAngleLerped = Mutil.SnapLerp(craneAngleLerped, craneAngle, double.Pi * speed, g.dt);
@@ -91,7 +137,8 @@ namespace APurpleApple.Selene.Artifacts
             double x = rect.Value.x + droneXLerped * 16 + 4.5 + 8;
             double y = rect.Value.y + 165;
 
-            Draw.Sprite(PMod.sprites["selene_cdrone_body"].Sprite, x, y, originPx: new Vec(16.5,32));
+            bool hasGotArmsRace = MG.inst.g.state.EnumerateAllArtifacts().Any((a) => a is Artifact_SeleneV2);
+            Draw.Sprite(PMod.sprites[hasGotArmsRace ? "selene_cdrone_body_gun" : "selene_cdrone_body"].Sprite, x, y, originPx: new Vec(16.5,32));
 
             double craneTipX = x - double.Sin(craneAngleLerped) * -(craneExtensionLerped+10);
             double craneTipY = y - 12.5 + double.Cos(craneAngleLerped) * -(craneExtensionLerped+10);
@@ -102,7 +149,7 @@ namespace APurpleApple.Selene.Artifacts
             Draw.Sprite(PMod.sprites["selene_cdrone_claw"].Sprite, craneTipX + clawOffsetX, craneTipY + clawOffsetY, originPx: new Vec(2.5,0), flipX: clawOffsetX > 0);
             Draw.Sprite(PMod.sprites["selene_cdrone_claw"].Sprite, craneTipX - clawOffsetX, craneTipY - clawOffsetY, originPx: new Vec(2.5,0), flipX: clawOffsetX < 0);
 
-            if (anim == EAnim.PlacePart && grabbedPartSkin != null)
+            if ((anim == EAnim.PlacePart || anim == EAnim.Throw) && grabbedPartSkin != null)
             {
                 Spr? spr = DB.parts.GetOrNull(grabbedPartSkin) ?? DB.partsOff.GetOrNull(grabbedPartSkin);
                 Draw.Sprite(spr, craneTipX, craneTipY, originPx: new Vec(8.5, 32.5), rotation: clawAngleLerped);
@@ -128,12 +175,21 @@ namespace APurpleApple.Selene.Artifacts
                         if (grabbedPart != null)
                         {
                             grabbedPart.skin = grabbedPartSkin;
+                            grabbedPart.isRendered = true;
                         }
                         break;
                     case EAnim.PickUpPart:
                         animAlpha = 0;
                         anim = EAnim.PlacePart;
-                        
+                        break;
+                    case EAnim.PickUpPartForThrow:
+                        animAlpha = 0;
+                        anim = EAnim.Throw;
+                        break;
+                    case EAnim.Throw:
+                        animAlpha = 0;
+                        anim = EAnim.Rest;
+                        grabbedPart = null;
                         break;
                 }
             }
@@ -144,8 +200,14 @@ namespace APurpleApple.Selene.Artifacts
             droneX = state.ship.x;
         }
 
+
         public override void OnCombatEnd(State state)
         {
+            foreach (SelenePart item in state.ship.parts.Where(p => p is SelenePart).ToList())
+            {
+                item.OnCombatEnd(state);
+            }
+
             for (int i = state.ship.parts.Count -1; i >= 0 ; i--)
             {
                 if (state.ship.parts[i] is SelenePart sp && sp.removedOnCombatEnd)
@@ -155,11 +217,42 @@ namespace APurpleApple.Selene.Artifacts
             }
         }
 
+        public override void OnTurnStart(State state, Combat combat)
+        {
+            foreach (SelenePart item in state.ship.parts.Where(p=>p is SelenePart).ToList())
+            {
+                item.OnTurnStart(state, combat);
+            }
+        }
+
+        public override void OnTurnEnd(State state, Combat combat)
+        {
+            foreach (SelenePart item in state.ship.parts.Where(p => p is SelenePart).ToList())
+            {
+                item.OnTurnEnd(state, combat);
+            }
+        }
+
+        public override void OnPlayerTakeNormalDamage(State state, Combat combat, int rawAmount, Part? part)
+        {
+            if (part is SelenePart sp)
+            {
+                sp.OnHit(state, combat);
+                if (sp.stunModifier == PStunMod.breakable)
+                {
+                    sp.Destroy(state, combat);
+                }
+            }
+        }
+
         public enum EAnim
         {
             Rest = 0,
             PlacePart = 1,
             PickUpPart = 2,
+            PickUpPartForThrow = 3,
+            Throw = 4,
         }
+
     }
 }

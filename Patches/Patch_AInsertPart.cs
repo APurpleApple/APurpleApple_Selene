@@ -17,7 +17,13 @@ namespace APurpleApple.Selene.Patches
         {
             if (!dontDraw && action is ASeleneInsertPart attachAction)
             {
-                Rect? rect = new Rect(-1 -14, -1);
+                int w = -15;
+                if (attachAction.part.damageModifier != PDamMod.none)
+                {
+                    w -= 4;
+                }
+
+                Rect? rect = new Rect(w, -1);
                 Vec xy = g.Push(null, rect).rect.xy;
                 double x = xy.x;
                 double y = xy.y;
@@ -58,6 +64,23 @@ namespace APurpleApple.Selene.Patches
                 if (modSpr != null)
                 {
                     Draw.Sprite(modSpr, x + 18, y, flipX: false, flipY: false, 0.0, null, null, null, null, color);
+                }
+
+                switch (attachAction.part.damageModifier)
+                {
+                    case PDamMod.none:
+                        break;
+                    case PDamMod.weak:
+                        Draw.Sprite(SSpr.icons_weak, x + 27, y, flipX: false, flipY: false, 0.0, null, null, null, null, color);
+                        break;
+                    case PDamMod.armor:
+                        Draw.Sprite(SSpr.icons_armor, x + 27, y, flipX: false, flipY: false, 0.0, null, null, null, null, color);
+                        break;
+                    case PDamMod.brittle:
+                        Draw.Sprite(SSpr.icons_brittle, x + 27, y, flipX: false, flipY: false, 0.0, null, null, null, null, color);
+                        break;
+                    default:
+                        break;
                 }
                 g.Pop();
             }
