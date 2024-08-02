@@ -36,7 +36,7 @@ namespace APurpleApple.Selene.Cards
             switch (upgrade)
             {
                 case Upgrade.None:
-                    actions.Add(new ASeleneWeld() { removeSingleUse = true});
+                    actions.Add(new ASeleneWeld() { removeSingleUse = true, removeBreakable = true });
                     break;
                 case Upgrade.A:
                     actions.Add(new ASeleneWeld() { removeSingleUse = true, removeTemp = true });

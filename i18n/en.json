@@ -2,44 +2,74 @@
   "artifact": {
     "Artifact_Selene": {
       "name": "CONSTRUCTOR DRONE",
-      "description": "An invicible constructor drone follows you around, moving along with midrow."
+      "description": "An invicible constructor drone follows you around, moving along with <c=midrow>midrow</c>."
     },
     "Artifact_SeleneV2": {
       "name": "ARMS RACE",
-      "description": "Mount a cannon onto the constructor drone, shooting for 1 damage every time you attack. Beware of friendly fire!\n "
+      "description": "Mount a cannon onto the <c=E77FDB>CONSTRUCTOR DRONE</c>, shooting for 1 damage every time you attack. Beware of friendly fire!\n "
+    },
+    "Artifact_Delivery": {
+      "name": "FRESH DELIVERY",
+      "description": "At combat start, add 1 random attach card to your hand with temp, discount, single use and retain."
+    },
+    "Artifact_Safety": {
+      "name": "SAFETY INSPECTION",
+      "description": "At combat start, gain 2 <c=status>REINFORCE</c> and 1 <c=status>PLATING</c>."
+    },
+    "Artifact_BreakArmor": {
+      "name": "REACTIVE ARMOR",
+      "description": "Your <c=part>breakable</c> parts take 1 less damage."
+    },
+    "Artifact_CheapRandom": {
+      "name": "CHEAP PARTS",
+      "description": "Attach cards cost 1 less. Random droneshift 3 before every attach."
+    },
+    "Artifact_EjectBuff": {
+      "name": "WEAPONIZED CONSTRUCTION",
+      "description": "Ejected parts deal 1 more damage."
     }
   },
   "action": {
     "AttachPart": {
       "name": "ATTACH PART",
-      "description": "Attach a part to your ship at the CONSTRUCTOR DRONE's location."
+      "description": "Attach a part to your ship at the <c=E77FDB>CONSTRUCTOR DRONE</c>'s location."
     },
     "RecyclePart": {
       "name": "RECYCLE PART",
-      "description": "Destroy a TEMP part at the CONSTRUCTOR DRONE's location.",
-      "condition": "the CONSTRUCTOR DRONE is aligned with a TEMP part"
+      "description": "Destroy a TEMP part at the <c=E77FDB>CONSTRUCTOR DRONE</c>'s location.",
+      "condition": "the <c=E77FDB>CONSTRUCTOR DRONE</c> is aligned with a TEMP part"
     },
     "WeldPart": {
       "name": "WELD PART",
-      "description": "Modify a part at the CONSTRUCTOR DRONE's location."
+      "description": "Modify a part at the <c=E77FDB>CONSTRUCTOR DRONE's</c> location."
     },
     "Align": {
       "name": "    ALIGN",
-      "description": "Bring the CONSTRUCTOR DRONE to your cockpit."
+      "description": "Bring the <c=E77FDB>CONSTRUCTOR DRONE</c> to the center of your ship."
+    },
+    "Eject": {
+      "name": "EJECT LEFTMOST",
+      "nameF": "EJECT RIGHTMOST",
+      "description": "Eject your leftmost <c=part>temporary</c> part for {0} damage.",
+      "descriptionF": "Eject your rightmost <c=part>temporary</c> part for {0} damage."
     },
     "MagPull": {
-      "name": "    PULL MIDROW",
-      "description": "PULL all midrow objects toward your cockpit."
+      "name": "PULL MIDROW",
+      "description": "PULL all <c=midrow>midrow objects</c> toward your ship."
     },
     "MagPush": {
-      "name": "    PUSH MIDROW",
-      "description": "PUSH all midrow objects away from your cockpit."
+      "name": "PUSH MIDROW",
+      "description": "PUSH all <c=midrow>midrow objects</c> away from your ship."
     }
   },
   "status": {
     "Reinforce": {
       "name": "REINFORCED",
-      "description": "The next time a part should be destroyed because of Single Use, it isn't."
+      "description": "The next time a part should be destroyed because of <c=part>single use</c>, it isn't."
+    },
+    "Plating": {
+      "name": "PLATING",
+      "description": "The next time a part should be destroyed because of <c=part>breakable</c>, it isn't."
     }
   },
   "partTrait": {
@@ -99,7 +129,20 @@
     },
     "Bubble": {
       "name": "BUBBLE BAY",
-      "description": "Whenever a midrow object passes in front of this, it gets bubbled."
+      "description": "Whenever a <c=midrow>midrow object</c> passes in front of this, it gets bubbled."
+    },
+    "Dynamo": {
+      "name": "DYNAMO CANNON",
+      "description": "Whenever this part moves, it attacks for 1 dmg."
+    },
+    "Reactor": {
+      "name": "ENERGY REACTOR",
+      "description": "At turn start, gain 1 energy.\n<c=downside>Explodes when destroyed, damaging adjacent parts for 1</c>."
+    },
+    "Launcher": {
+      "name": "MISSILE LAUNCHER",
+      "description": "At turn start, launch a <c=midrow>missile</c>.",
+      "descriptionA": "At turn start, launch a <c=midrow>heavy missile</c>."
     }
   },
   "tooltips": {
@@ -107,7 +150,7 @@
   "characters": {
     "Selene": {
       "name": "Selene",
-      "description": "SELENE\nA ship builder"
+      "description": "<c=E77FDB>SELENE</c>\nA ship builder. Her cards modify your ship on the fly."
     }
   },
   "card": {
@@ -132,37 +175,51 @@
     "AttachBubble": {
       "name": "BUBBLE BAY"
     },
+    "AttachDynamo": {
+      "name": "DYNAMO CANNON"
+    },
+    "AttachLauncher": {
+      "name": "MISSILE LAUNCHR"
+    },
+    "AttachReactor": {
+      "name": "ENERGY REACTOR"
+    },
     "ActivateCloak": {
       "name": "Activate Cloaking",
-      "description": "Cloaking Device and adjacent parts become EMPTY until next turn.",
-      "descriptionB": "Your entire ship becomes EMPTY until next turn."
+      "description": "<c=part>cloaking device</c> and adjacent parts become <c=part>empty</c> until next turn.",
+      "descriptionB": "Your entire ship becomes <c=part>empty</c> until next turn."
     },
     "Align": {
       "name": "Align"
     },
     "Magnetize": {
       "name": "Magnetize",
-      "push": "PUSH all midrow objects away from your cockpit.",
-      "pull": "PULL all midrow objects toward your cockpit."
+      "push": "PUSH <c=midrow>all midrow objects</c> away from your ship.",
+      "pull": "PULL <c=midrow>all midrow objects</c> toward your ship."
     },
     "Shuffle": {
       "name": "Shuffle!",
-      "description": "Shuffle your ship.",
+      "description": "Shuffle your ship and gain 2 <c=status>TEMP SHIELD</c>.",
       "descriptionEnemy": "Shuffle the enemy ship."
     },
     "EjectAll": {
       "name": "Disassembly",
-      "description": "Eject all your temporary parts, dealing 2 damage per hit.",
-      "descriptionB": "Eject all your temporary parts, dealing 3 damage per hit."
+      "description": "Eject all your <c=part>temporary</c> parts, dealing {0} damage per hit."
+    },
+    "Eject": {
+      "name": "Eject"
     },
     "Weld": {
       "name": "Weld",
-      "description": "Remove Single Use from a part.",
-      "descriptionA": "Remove Temporary and Single Use from a part.",
-      "descriptionB": "Remove Temporary, Single Use, and Breakable from a part."
+      "description": "Remove <c=part>single use</c> and <c=part>breakable</c> from a part.",
+      "descriptionA": "Remove <c=part>temporary</c> and <c=part>single use</c> from a part.",
+      "descriptionB": "Remove <c=part>temporary</c>, <c=part>single use</c>, and <c=part>breakable</c> from a part."
     },
     "Reinforce": {
       "name": "Reinforce"
+    },
+    "Plating": {
+      "name": "Plating"
     },
     "Recycle": {
       "name": "Recycle"

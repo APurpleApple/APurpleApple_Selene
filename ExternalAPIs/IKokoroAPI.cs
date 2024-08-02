@@ -14,6 +14,8 @@ namespace APurpleApple.Selene.ExternalAPIs
         IConditionalActionApi ConditionalActions { get; }
         IActionCostApi ActionCosts { get; }
 
+
+
         public partial interface IConditionalActionApi
         {
             CardAction Make(IBoolExpression expression, CardAction action, bool fadeUnsatisfied = true);

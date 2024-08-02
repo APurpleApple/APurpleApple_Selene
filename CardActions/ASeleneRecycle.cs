@@ -6,18 +6,23 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using APurpleApple.Selene.Interfaces;
 
 namespace APurpleApple.Selene.CardActions
 {
-    internal class ASeleneRecycle : CardAction
+    internal class ASeleneRecycle : CardAction, IHiddenAction
     {
+        public override Icon? GetIcon(State s)
+        {
+            return new Icon() { path = PMod.sprites["icon_recyclePart"].Sprite };
+        }
         public override void Begin(G g, State s, Combat c)
         {
             Artifact_Selene? art = Artifact_Selene.Find(s);
             if (art == null) return;
 
             Part? part = s.ship.GetPartAtWorldX(art.droneX);
-            if (part == null || part is not SelenePart sp || !sp.removedOnCombatEnd) return;
+            if (part == null || part is not PartSelene sp || !sp.IsTemporary) return;
 
             sp.Destroy(s, c);
         }
@@ -40,9 +45,11 @@ namespace APurpleApple.Selene.CardActions
             {
                 Artifact_Selene? art = Artifact_Selene.Find(state);
                 if (art == null) return false;
+
                 Part? part = state.ship.GetPartAtWorldX(art.droneX);
-                if (part != null && part is SelenePart sp && sp.removedOnCombatEnd) return true;
-                return false;
+                if (part == null || part is not PartSelene sp || !sp.IsTemporary) return false;
+
+                return true;
             }
 
             public void Render(G g, ref Vec position, bool isDisabled, bool dontRender)

@@ -37,7 +37,7 @@ namespace APurpleApple.Selene.Patches
                 {
                     modSpr = PMod.sprites["icon_single"].Sprite;
 
-                    if (attachAction.part.removedOnCombatEnd)
+                    if (attachAction.part.IsTemporary)
                     {
                         modSpr = PMod.sprites["icon_singleTemp"].Sprite;
 
@@ -47,7 +47,7 @@ namespace APurpleApple.Selene.Patches
                         }
                     }
                 }
-                else if (attachAction.part.removedOnCombatEnd)
+                else if (attachAction.part.IsTemporary)
                 {
                     modSpr = SSpr.icons_temporary;
 

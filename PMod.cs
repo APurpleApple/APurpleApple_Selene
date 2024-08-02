@@ -37,6 +37,7 @@ public sealed class PMod : SimpleMod
     public static Dictionary<string, IDeckEntry> decks = new();
 
     public static IKokoroApi? kokoroApi { get; private set; }
+    public static IShipPartExpansionAPI? SPEApi { get; private set; }
     public static Assembly? kokoroAssembly { get; private set; }
 
     public static List<Tuple<Type, PType>> cardActionLooksForType = new();
@@ -48,13 +49,18 @@ public sealed class PMod : SimpleMod
         typeof(Card_SeleneAttachThruster),
         typeof(Card_SeleneAttachCloaking),
         typeof(Card_SeleneAttachBubble),
+        typeof(Card_SeleneAttachDynamo),
+        typeof(Card_SeleneAttachLauncher),
+        typeof(Card_SeleneAttachReactor),
         typeof(Card_SeleneAlign),
+        typeof(Card_SeleneEject),
         typeof(Card_SeleneMagnetize),
         typeof(Card_SeleneShuffle),
         typeof(Card_SeleneEjectAll),
         typeof(Card_SeleneWeld),
         typeof(Card_SeleneActivateCloak),
         typeof(Card_SeleneReinforce),
+        typeof(Card_SelenePlating),
         typeof(Card_SeleneRecycle),
         typeof(Card_SeleneDelivery),
         typeof(Card_RandomAttach),
@@ -64,6 +70,11 @@ public sealed class PMod : SimpleMod
 
     internal static IReadOnlyList<Type> Registered_Artifact_Types { get; } = [
         typeof(Artifact_Selene),
+        typeof(Artifact_BreakArmor),
+        typeof(Artifact_Delivery),
+        typeof(Artifact_Safety),
+        typeof(Artifact_EjectBuff),
+        typeof(Artifact_CheapRandom),
         //typeof(Artifact_SeleneV2),
     ];
 
@@ -103,11 +114,14 @@ public sealed class PMod : SimpleMod
         RegisterSprite("selene_cdrone_arm_big", "Parts/cdrone_arm_big.png", package);
         RegisterSprite("selene_cdrone_arm_med", "Parts/cdrone_arm_med.png", package);
         RegisterSprite("selene_hint_ship_widden", "Hints/hint_ship_widden.png", package);
+        RegisterSprite("selene_hint_magnetize_pull", "Hints/hint_magnetize_cap_pull.png", package);
+        RegisterSprite("selene_hint_magnetize_push", "Hints/hint_magnetize_cap_push.png", package);
         RegisterSprite("selene_part_cannon_temp_off", "Parts/cannon_temp_off.png", package);
         RegisterSprite("selene_fx_part_bit_0", "FX/fx_part_bit_0.png", package);
         RegisterSprite("FX_ShieldProj", "Parts/shield_projection.png", package);
 
         RegisterSprite("selene_part_cannon", "Parts/cannon_temp.png", package);
+        RegisterSprite("selene_part_dynamo", "Parts/dynamocannon.png", package);
         RegisterSprite("selene_part_bay", "Parts/bay_temp.png", package);
         RegisterSprite("selene_part_shield", "Parts/shield_temp.png", package);
         RegisterSprite("selene_part_shieldV2", "Parts/shield_v2_temp.png", package);
@@ -115,11 +129,18 @@ public sealed class PMod : SimpleMod
         RegisterSprite("selene_part_thrusterV2", "Parts/thruster_v2_temp.png", package);
         RegisterSprite("selene_part_cloak", "Parts/cloak_temp.png", package);
         RegisterSprite("selene_part_bubble", "Parts/bubble_bay.png", package);
+        RegisterSprite("selene_part_launcher", "Parts/missilelauncher.png", package);
+        RegisterSprite("selene_part_launcherHeavy", "Parts/missilelauncherheavy.png", package);
+        RegisterSprite("selene_part_reactor", "Parts/reactor.png", package);
 
         RegisterSprite("selene_border", "Characters/panel.png", package);
         RegisterSprite("selene_cardBorder", "Cards/border_selene.png", package);
         RegisterSprite("selene_cardBackDefault", "Cards/back_default.png", package);
         RegisterSprite("selene_cardBackAttach", "Cards/back_attach.png", package);
+        RegisterSprite("selene_cardBackAttach_tbot", "Cards/back_attach_toggle_bottom.png", package);
+        RegisterSprite("selene_cardBackAttach_ttop", "Cards/back_attach_toggle_top.png", package);
+        RegisterSprite("back_MagPull", "Cards/back_mag_pull.png", package);
+        RegisterSprite("back_MagPush", "Cards/back_mag_push.png", package);
         RegisterSprite("selene_mini", "Characters/selene_mini.png", package);
         RegisterSprite("selene_neutral_0", "Characters/selene_neutral_0.png", package);
         RegisterSprite("selene_neutral_1", "Characters/selene_neutral_1.png", package);
@@ -128,11 +149,18 @@ public sealed class PMod : SimpleMod
         RegisterSprite("selene_neutral_4", "Characters/selene_neutral_4.png", package);
         RegisterSprite("selene_artifact", "Artifacts/artifact_selene.png", package);
         RegisterSprite("selene_artifact_gun", "Artifacts/artifact_selene_gun.png", package);
+        RegisterSprite("artifact_cheap_random", "Artifacts/artifact_cheap_random.png", package);
+        RegisterSprite("artifact_delivery", "Artifacts/artifact_delivery.png", package);
+        RegisterSprite("artifact_safety", "Artifacts/artifact_safety.png", package);
+        RegisterSprite("artifact_break_armor", "Artifacts/artifact_break_armor.png", package);
+        RegisterSprite("artifact_eject_buff", "Artifacts/artifact_eject_buff.png", package);
 
         RegisterSprite("icon_attachPart", "Icons/Attach.png", package);
         RegisterSprite("icon_magPush", "Icons/magPush.png", package);
         RegisterSprite("icon_magPull", "Icons/magPull.png", package);
         RegisterSprite("icon_weldPart", "Icons/Weld.png", package);
+        RegisterSprite("icon_ejectLeft", "Icons/EjectLeft.png", package);
+        RegisterSprite("icon_ejectRight", "Icons/EjectRight.png", package);
         RegisterSprite("icon_alignDrone", "Icons/aligndrone.png", package);
         RegisterSprite("icon_recyclePart", "Icons/Recycle.png", package);
         RegisterSprite("icon_breakTemp", "Icons/BreakTemp.png", package);
@@ -140,8 +168,12 @@ public sealed class PMod : SimpleMod
         RegisterSprite("icon_single", "Icons/Single.png", package);
         RegisterSprite("icon_singleTemp", "Icons/SingleTemp.png", package);
         RegisterSprite("status_reinforce", "Icons/reinforced.png", package);
+        RegisterSprite("status_plating", "Icons/plating.png", package);
+        RegisterSprite("cost_droneshift", "Icons/droneShiftCost.png", package);
+        RegisterSprite("cost_droneshiftOff", "Icons/droneShiftCostOff.png", package);
 
         RegisterSprite("icon_part_cannon", "Icons/Cannon.png", package);
+        RegisterSprite("icon_part_dynamo", "Icons/DynamoCannon.png", package);
         RegisterSprite("icon_part_shield", "Icons/Shield.png", package);
         RegisterSprite("icon_part_shield_v2", "Icons/ShieldV2.png", package);
         RegisterSprite("icon_part_thruster_left", "Icons/ThrusterLeft.png", package);
@@ -152,6 +184,30 @@ public sealed class PMod : SimpleMod
         RegisterSprite("icon_part_drill", "Icons/Drill.png", package);
         RegisterSprite("icon_part_cloak", "Icons/Cloak.png", package);
         RegisterSprite("icon_part_bubble", "Icons/Bubble.png", package);
+        RegisterSprite("icon_part_launcher", "Icons/Launcher.png", package);
+        RegisterSprite("icon_part_launcherHeavy", "Icons/LauncherHeavy.png", package);
+        RegisterSprite("icon_part_reactor", "Icons/Reactor.png", package);
+
+        RegisterSprite("fx_shield_0", "FX/Shield/0.png", package);
+        RegisterSprite("fx_shield_1", "FX/Shield/1.png", package);
+        RegisterSprite("fx_shield_2", "FX/Shield/2.png", package);
+        RegisterSprite("fx_shield_3", "FX/Shield/3.png", package);
+        RegisterSprite("fx_shield_4", "FX/Shield/4.png", package);
+        RegisterSprite("fx_shield_5", "FX/Shield/5.png", package);
+        RegisterSprite("fx_shield_6", "FX/Shield/6.png", package);
+        RegisterSprite("fx_shield_7", "FX/Shield/7.png", package);
+
+        RegisterSprite("fx_shieldImpact_0", "FX/ShieldImpact/0.png", package);
+        RegisterSprite("fx_shieldImpact_1", "FX/ShieldImpact/1.png", package);
+        RegisterSprite("fx_shieldImpact_2", "FX/ShieldImpact/2.png", package);
+        RegisterSprite("fx_shieldImpact_3", "FX/ShieldImpact/3.png", package);
+        RegisterSprite("fx_shieldImpact_4", "FX/ShieldImpact/4.png", package);
+
+        RegisterSprite("fx_bubble_0", "FX/Bubble/0.png", package);
+        RegisterSprite("fx_bubble_1", "FX/Bubble/1.png", package);
+        RegisterSprite("fx_bubble_2", "FX/Bubble/2.png", package);
+        RegisterSprite("fx_bubble_3", "FX/Bubble/3.png", package);
+        RegisterSprite("fx_bubble_4", "FX/Bubble/4.png", package);
 
         glossaries.Add("AttachPart", new CustomTTGlossary(
             CustomTTGlossary.GlossaryType.action,
@@ -200,6 +256,34 @@ public sealed class PMod : SimpleMod
             () => sprites["icon_part_cannon"].Sprite,
             () => Localizations.Localize(["parts", "Cannon", "name"]),
             () => Localizations.Localize(["parts", "Cannon", "description"])
+            ));
+
+        glossaries.Add("Part_Reactor", new CustomTTGlossary(
+            CustomTTGlossary.GlossaryType.part,
+            () => sprites["icon_part_reactor"].Sprite,
+            () => Localizations.Localize(["parts", "Reactor", "name"]),
+            () => Localizations.Localize(["parts", "Reactor", "description"])
+            ));
+
+        glossaries.Add("Part_Launcher", new CustomTTGlossary(
+            CustomTTGlossary.GlossaryType.part,
+            () => sprites["icon_part_launcher"].Sprite,
+            () => Localizations.Localize(["parts", "Launcher", "name"]),
+            () => Localizations.Localize(["parts", "Launcher", "description"])
+            ));
+
+        glossaries.Add("Part_LauncherHeavy", new CustomTTGlossary(
+            CustomTTGlossary.GlossaryType.part,
+            () => sprites["icon_part_launcherHeavy"].Sprite,
+            () => Localizations.Localize(["parts", "Launcher", "name"]),
+            () => Localizations.Localize(["parts", "Launcher", "descriptionA"])
+            ));
+
+        glossaries.Add("Part_Dynamo", new CustomTTGlossary(
+            CustomTTGlossary.GlossaryType.part,
+            () => sprites["icon_part_dynamo"].Sprite,
+            () => Localizations.Localize(["parts", "Dynamo", "name"]),
+            () => Localizations.Localize(["parts", "Dynamo", "description"])
             ));
 
         glossaries.Add("Part_Bay", new CustomTTGlossary(
@@ -299,6 +383,20 @@ public sealed class PMod : SimpleMod
             Name = AnyLocalizations.Bind(["status", "Reinforce", "name"]).Localize
         });
 
+        statuses["plating"] = helper.Content.Statuses.RegisterStatus("plating", new StatusConfiguration()
+        {
+            Definition = new StatusDef()
+            {
+                isGood = true,
+                icon = sprites["status_plating"].Sprite,
+                affectedByTimestop = false,
+                border = new Color("a8a8a8"),
+                color = new Color("a8a8a8")
+            },
+            Description = AnyLocalizations.Bind(["status", "Plating", "description"]).Localize,
+            Name = AnyLocalizations.Bind(["status", "Plating", "name"]).Localize
+        });
+
         parts["selene_cannon"] = helper.Content.Ships.RegisterPart("selene_cannon", new PartConfiguration() { Sprite = sprites["selene_part_cannon"].Sprite, DisabledSprite = SSpr.parts_scaffolding });
         parts["selene_bay"] = helper.Content.Ships.RegisterPart("selene_bay", new PartConfiguration() { Sprite = sprites["selene_part_bay"].Sprite, DisabledSprite = SSpr.parts_scaffolding });
         parts["selene_shield"] = helper.Content.Ships.RegisterPart("selene_shield", new PartConfiguration() { Sprite = sprites["selene_part_shield"].Sprite, DisabledSprite = SSpr.parts_scaffolding });
@@ -307,6 +405,10 @@ public sealed class PMod : SimpleMod
         parts["selene_thrusterV2"] = helper.Content.Ships.RegisterPart("selene_thrusterV2", new PartConfiguration() { Sprite = sprites["selene_part_thrusterV2"].Sprite, DisabledSprite = SSpr.parts_scaffolding });
         parts["selene_cloak"] = helper.Content.Ships.RegisterPart("selene_cloak", new PartConfiguration() { Sprite = sprites["selene_part_cloak"].Sprite, DisabledSprite = SSpr.parts_scaffolding });
         parts["selene_bubble"] = helper.Content.Ships.RegisterPart("selene_bubble", new PartConfiguration() { Sprite = sprites["selene_part_bubble"].Sprite, DisabledSprite = SSpr.parts_scaffolding });
+        parts["selene_dynamo"] = helper.Content.Ships.RegisterPart("selene_dynamo", new PartConfiguration() { Sprite = sprites["selene_part_dynamo"].Sprite, DisabledSprite = SSpr.parts_scaffolding });
+        parts["selene_reactor"] = helper.Content.Ships.RegisterPart("selene_reactor", new PartConfiguration() { Sprite = sprites["selene_part_reactor"].Sprite, DisabledSprite = SSpr.parts_scaffolding });
+        parts["selene_launcher"] = helper.Content.Ships.RegisterPart("selene_launcher", new PartConfiguration() { Sprite = sprites["selene_part_launcher"].Sprite, DisabledSprite = SSpr.parts_scaffolding });
+        parts["selene_launcherHeavy"] = helper.Content.Ships.RegisterPart("selene_launcherHeavy", new PartConfiguration() { Sprite = sprites["selene_part_launcherHeavy"].Sprite, DisabledSprite = SSpr.parts_scaffolding });
 
         decks["selene"] = helper.Content.Decks.RegisterDeck("selene", 
             new DeckConfiguration() { 
@@ -358,6 +460,7 @@ public sealed class PMod : SimpleMod
             if (e == ModLoadPhase.AfterDbInit)
             {
                 kokoroApi = helper.ModRegistry.GetApi<IKokoroApi>("Shockah.Kokoro");
+                SPEApi = helper.ModRegistry.GetApi<IShipPartExpansionAPI>("APurpleApple.ShipPartExpansion");
 
                 Patch();
             }

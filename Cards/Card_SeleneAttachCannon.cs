@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using APurpleApple.Selene.CardActions;
 using System.Reflection.Metadata;
+using APurpleApple.Selene.Artifacts;
 
 namespace APurpleApple.Selene.Cards
 {
@@ -37,9 +38,10 @@ namespace APurpleApple.Selene.Cards
             switch (upgrade)
             {
                 case Upgrade.None:
+                    actions.Add(new AAttack() { damage = GetDmg(s, 1), targetPlayer = false });
                     actions.Add(new ASeleneInsertPart()
                     {
-                        part = new TemporaryGun()
+                        part = new PartGun()
                         {
                             skin = PMod.parts["selene_cannon"].UniqueName,
                             type = PType.cannon,
@@ -47,42 +49,60 @@ namespace APurpleApple.Selene.Cards
                             stunModifier = PStunMod.breakable,
                             singleUse = true,
                             tooltip = "Part_Cannon",
-                            removedOnCombatEnd = true,
                         }
                     });
                     break;
                 case Upgrade.A:
-                    actions.Add(new ADroneMove()
-                    {
-                        dir = 1,
-                    });
+                    actions.Add(new AStatus() { status = PMod.statuses["reinforce"].Status, statusAmount = 1, targetPlayer = true });
                     actions.Add(new ASeleneInsertPart()
                     {
-                        part = new TemporaryGun()
+                        part = new PartGun()
                         {
                             skin = PMod.parts["selene_cannon"].UniqueName,
                             type = PType.cannon,
                             icon = PMod.sprites["icon_part_cannon"].Sprite,
+                            stunModifier = PStunMod.breakable,
                             singleUse = true,
                             tooltip = "Part_Cannon",
-                            damageModifier = PDamMod.armor,
-                            stunModifier = PStunMod.breakable,
-                            removedOnCombatEnd = true,
                         }
                     });
+                    actions.Add(new AAttack() { damage = GetDmg(s, 1), targetPlayer = false });
                     break;
                 case Upgrade.B:
                     actions.Add(new ASeleneInsertPart()
                     {
-                        part = new TemporaryGun()
+                        part = new PartGun()
                         {
                             skin = PMod.parts["selene_cannon"].UniqueName,
                             type = PType.cannon,
                             icon = PMod.sprites["icon_part_cannon"].Sprite,
                             stunModifier = PStunMod.breakable,
-                            singleUse = false,
+                            singleUse = true,
                             tooltip = "Part_Cannon",
-                            removedOnCombatEnd = true,
+                        }
+                    });
+                    actions.Add(new ASeleneInsertPart()
+                    {
+                        part = new PartGun()
+                        {
+                            skin = PMod.parts["selene_cannon"].UniqueName,
+                            type = PType.cannon,
+                            icon = PMod.sprites["icon_part_cannon"].Sprite,
+                            stunModifier = PStunMod.breakable,
+                            singleUse = true,
+                            tooltip = "Part_Cannon",
+                        }
+                    });
+                    actions.Add(new ASeleneInsertPart()
+                    {
+                        part = new PartGun()
+                        {
+                            skin = PMod.parts["selene_cannon"].UniqueName,
+                            type = PType.cannon,
+                            icon = PMod.sprites["icon_part_cannon"].Sprite,
+                            stunModifier = PStunMod.breakable,
+                            singleUse = true,
+                            tooltip = "Part_Cannon",
                         }
                     });
                     break;
@@ -105,15 +125,18 @@ namespace APurpleApple.Selene.Cards
                     break;
                 case Upgrade.A:
                     data.cost = 1;
-                    data.flippable = true;
 
                     break;
                 case Upgrade.B:
-                    data.cost = 4;
-
+                    data.cost = 2;
                     break;
                 default:
                     break;
+            }
+
+            if (state.EnumerateAllArtifacts().Any(a => a is Artifact_CheapRandom))
+            {
+                data.cost--;
             }
             return data;
         }

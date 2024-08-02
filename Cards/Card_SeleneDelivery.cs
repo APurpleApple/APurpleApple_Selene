@@ -20,7 +20,7 @@ namespace APurpleApple.Selene.Cards
                 Meta = new()
                 {
                     deck = PMod.decks["selene"].Deck,
-                    rarity = Rarity.rare,
+                    rarity = Rarity.common,
                     upgradesTo = [Upgrade.A, Upgrade.B],
                     dontOffer = false
                 },

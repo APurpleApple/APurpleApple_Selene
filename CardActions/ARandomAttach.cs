@@ -16,6 +16,9 @@ namespace APurpleApple.Selene.CardActions
             typeof(Card_SeleneAttachThruster),
             typeof(Card_SeleneAttachCloaking),
             typeof(Card_SeleneAttachBubble),
+            typeof(Card_SeleneAttachLauncher),
+            typeof(Card_SeleneAttachDynamo),
+            typeof(Card_SeleneAttachReactor),
         ];
 
         public override void Begin(G g, State s, Combat c)

@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using APurpleApple.Selene.CardActions;
 using Microsoft.Win32.SafeHandles;
+using APurpleApple.Selene.Artifacts;
 
 namespace APurpleApple.Selene.Cards
 {
@@ -39,7 +40,7 @@ namespace APurpleApple.Selene.Cards
                 case Upgrade.None:
                     actions.Add(new ASeleneInsertPart()
                     {
-                        part = new ShieldProjector()
+                        part = new PartShieldProjector()
                         {
                             skin = PMod.parts["selene_shield"].UniqueName,
                             type = PType.special,
@@ -48,14 +49,13 @@ namespace APurpleApple.Selene.Cards
                             tooltip = "Part_Shield",
                             damageModifier = PDamMod.weak,
                             singleUse = false,
-                            removedOnCombatEnd = true,
                         }
                     });
                     break;
                 case Upgrade.A:
                     actions.Add(new ASeleneInsertPart()
                     {
-                        part = new ShieldProjector()
+                        part = new PartShieldProjector()
                         {
                             skin = PMod.parts["selene_shield"].UniqueName,
                             type = PType.special,
@@ -64,7 +64,6 @@ namespace APurpleApple.Selene.Cards
                             tooltip = "Part_Shield",
                             damageModifier = PDamMod.armor,
                             singleUse = false,
-                            removedOnCombatEnd = true,
                         }
                     });
                     actions.Add(new AStatus() { status = SStatus.shield, statusAmount = 1, targetPlayer = true });
@@ -72,7 +71,7 @@ namespace APurpleApple.Selene.Cards
                 case Upgrade.B:
                     actions.Add(new ASeleneInsertPart()
                     {
-                        part = new ShieldProjector()
+                        part = new PartShieldProjector()
                         {
                             blocked = 2,
                             skin = PMod.parts["selene_shieldV2"].UniqueName,
@@ -82,7 +81,6 @@ namespace APurpleApple.Selene.Cards
                             tooltip = "Part_ShieldV2",
                             damageModifier = PDamMod.weak,
                             singleUse = false,
-                            removedOnCombatEnd = true,
                         }
                     });
                     break;
@@ -110,6 +108,11 @@ namespace APurpleApple.Selene.Cards
                     break;
                 default:
                     break;
+            }
+
+            if (state.EnumerateAllArtifacts().Any(a => a is Artifact_CheapRandom))
+            {
+                data.cost--;
             }
             return data;
         }

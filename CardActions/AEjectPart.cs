@@ -6,18 +6,33 @@ using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 using APurpleApple.Selene.CardActions;
+using APurpleApple.Selene.Artifacts;
 
 namespace APurpleApple.Selene
 {
     internal class AEjectPart : CardAction
     {
-        public required Part ejectedPart;
+        public required Part? ejectedPart;
         public int damage = 2;
+
+        public override List<Tooltip> GetTooltips(State s)
+        {
+            List<Tooltip> result = base.GetTooltips(s);
+
+            if (ejectedPart != null)
+            {
+                ejectedPart.hilight = true;
+            }
+
+
+            return result;
+        }
 
         public override void Begin(G g, State s, Combat c)
         {
-            int localX = s.ship.parts.IndexOf(ejectedPart);
 
+            if (ejectedPart == null) return;
+            int localX = s.ship.parts.IndexOf(ejectedPart);
             Part scaffold = new Part()
             {
                 type = PType.empty,
@@ -30,7 +45,7 @@ namespace APurpleApple.Selene
             Ship ship = c.otherShip;
             RaycastResult raycastResult = CombatUtils.RaycastFromShipLocal(s, c, localX, false);
 
-            c.fx.Add(new VFX_PartEjection() { part = ejectedPart, worldX = (localX + s.ship.x) * 16, spins = raycastResult.hitDrone || raycastResult.hitShip });
+            c.fx.Add(new VFX_PartEjection() { part = ejectedPart, worldX = (localX + s.ship.x) * 16, spins = raycastResult.hitDrone || raycastResult.hitShip, hitDrone = raycastResult.hitDrone });
             DamageDone dmg = new DamageDone();
             if (raycastResult.hitShip)
             {

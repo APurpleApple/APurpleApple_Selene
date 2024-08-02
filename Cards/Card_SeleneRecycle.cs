@@ -44,7 +44,7 @@ namespace APurpleApple.Selene.Cards
                 case Upgrade.None:
                     actions.AddRange(PMod.kokoroApi!.Actions.MakeContinued(stopId,
                         [
-                        PMod.kokoroApi!.Actions.MakeHidden(new ASeleneRecycle(), true),
+                        new ASeleneRecycle(),
                         new AEnergy(){changeAmount = 2}
 
                         ]));
@@ -55,7 +55,7 @@ namespace APurpleApple.Selene.Cards
                     template.singleUseOverride = true;
                     actions.AddRange(PMod.kokoroApi!.Actions.MakeContinued(stopId,
                         [
-                        PMod.kokoroApi!.Actions.MakeHidden(new ASeleneRecycle(), true),
+                        new ASeleneRecycle(),
                         new AAddRandomAttachCard() { card = template, amount = 1, destination = CardDestination.Hand}
 
                         ]));
@@ -63,7 +63,7 @@ namespace APurpleApple.Selene.Cards
                     case Upgrade.B:
                     actions.AddRange(PMod.kokoroApi!.Actions.MakeContinued(stopId,
                         [
-                        PMod.kokoroApi!.Actions.MakeHidden(new ASeleneRecycle(), true),
+                        new ASeleneRecycle(),
                         new AEnergy(){changeAmount = 2}
 
                         ]));

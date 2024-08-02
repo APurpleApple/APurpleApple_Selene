@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace APurpleApple.Selene
 {
-    public class TemporaryGun : SelenePart
+    public class PartBay : PartSelene
     {
     }
 }

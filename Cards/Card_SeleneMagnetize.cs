@@ -33,20 +33,35 @@ namespace APurpleApple.Selene.Cards
         {
             List<CardAction> actions = new List<CardAction>();
 
-            actions.Add(new ASeleneMagnetize() { pull = flipped });
             switch (upgrade)
             {
                 case Upgrade.None:
+                    actions.Add(new ASeleneMagnetize() { pull = flipped });
+                    actions.Add(new AStatus() { targetPlayer = true, status = SStatus.droneShift, statusAmount = 1 });
                     break;
                 case Upgrade.A:
+                    actions.Add(new ASeleneMagnetize() { pull = flipped });
+                    actions.Add(new AStatus() { targetPlayer = true, status = SStatus.droneShift, statusAmount = 1 });
+                    actions.Add(new ADrawCard() { count = 1 });
                     break;
                 case Upgrade.B:
+                    actions.Add(PMod.kokoroApi!.ActionCosts.Make(
+                        cost: PMod.kokoroApi.ActionCosts.Cost(
+                            PMod.kokoroApi.ActionCosts.StatusResource(
+                                status: SStatus.droneShift,
+                                costUnsatisfiedIcon: PMod.sprites["cost_droneshiftOff"].Sprite,
+                                costSatisfiedIcon: PMod.sprites["cost_droneshift"].Sprite
+                                ),
+                            amount: 1
+                            ),
+                        action: new ASeleneMagnetize() { pull = flipped }
+                        ));
+
                     break;
                 default:
                     break;
             }
             
-
             return actions;
         }
 
@@ -61,15 +76,16 @@ namespace APurpleApple.Selene.Cards
                     break;
                 case Upgrade.A:
                     data.cost = 0;
-                    data.retain = true;
                     data.flippable = true;
                     break;
                 case Upgrade.B:
-                    data.cost = 1;
+                    data.cost = 0;
                     data.infinite = true;
+                    data.retain = true;
                     data.flippable = true;
                     break;
             }
+            data.art = PMod.sprites[flipped ? "back_MagPull" : "back_MagPush"].Sprite;
             return data;
         }
 

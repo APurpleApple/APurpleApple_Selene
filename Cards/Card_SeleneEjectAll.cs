@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using APurpleApple.Selene.CardActions;
+using APurpleApple.Selene.Artifacts;
 
 namespace APurpleApple.Selene.Cards
 {
@@ -32,17 +33,16 @@ namespace APurpleApple.Selene.Cards
         public override List<CardAction> GetActions(State s, Combat c)
         {
             List<CardAction> actions = new List<CardAction>();
-
             switch (upgrade)
             {
                 case Upgrade.None:
-                    actions.Add(new ASeleneEjectAll() { damage = 2 });
+                    actions.Add(new ASeleneEjectAll() { damage = GetDamage(s) });
                     break;
                 case Upgrade.A:
-                    actions.Add(new ASeleneEjectAll() { damage = 2 });
+                    actions.Add(new ASeleneEjectAll() { damage = GetDamage(s) });
                     break;
                 case Upgrade.B:
-                    actions.Add(new ASeleneEjectAll() { damage = 3});
+                    actions.Add(new ASeleneEjectAll() { damage = GetDamage(s) });
                     break;
                 default:
                     break;
@@ -52,23 +52,35 @@ namespace APurpleApple.Selene.Cards
             return actions;
         }
 
+        public int GetDamage(State s)
+        {
+            int damage = 3;
+            if (s.EnumerateAllArtifacts().Any(a => a is Artifact_EjectBuff)) damage++;
+            if (upgrade == Upgrade.A)
+            {
+                damage += 1;
+            }
+            return damage;
+        }
+
         public override CardData GetData(State state)
         {
             CardData data = new CardData();
             switch (upgrade)
             {
                 case Upgrade.None:
-                    data.cost = 2;
-                    data.description = PMod.Instance.Localizations.Localize(["card", "EjectAll", "description"]);
+                    data.cost = 1;
+                    data.description = PMod.Instance.Localizations.Localize(["card", "EjectAll", "description"], GetDamage(state));
                     break;
                 case Upgrade.A:
-                    data.cost = 0;
-                    data.exhaust = true;
-                    data.description = PMod.Instance.Localizations.Localize(["card", "EjectAll", "description"]);
+                    data.cost = 1;
+                    data.description = PMod.Instance.Localizations.Localize(["card", "EjectAll", "description"], GetDamage(state));
                     break;
                 case Upgrade.B:
-                    data.cost = 2;
-                    data.description = PMod.Instance.Localizations.Localize(["card", "EjectAll", "descriptionB"]);
+                    data.cost = 0;
+                    data.exhaust = true;
+                    data.retain = true;
+                    data.description = PMod.Instance.Localizations.Localize(["card", "EjectAll", "description"], GetDamage(state));
                     break;
             }
             return data;

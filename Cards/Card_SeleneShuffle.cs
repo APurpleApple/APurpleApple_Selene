@@ -37,9 +37,11 @@ namespace APurpleApple.Selene.Cards
             {
                 case Upgrade.None:
                     actions.Add(new AShuffleShip() { targetPlayer = true});
+                    actions.Add(new AStatus() { targetPlayer = true, status = SStatus.tempShield, statusAmount = 2 });
                     break;
                 case Upgrade.A:
                     actions.Add(new AShuffleShip() { targetPlayer = true });
+                    actions.Add(new AStatus() { targetPlayer = true, status = SStatus.tempShield, statusAmount = 2 });
                     break;
                 case Upgrade.B:
                     actions.Add(new AShuffleShip() { targetPlayer = false });
@@ -58,13 +60,12 @@ namespace APurpleApple.Selene.Cards
             switch (upgrade)
             {
                 case Upgrade.None:
-                    data.cost = 2;
+                    data.cost = 1;
                     data.description = PMod.Instance.Localizations.Localize(["card", "Shuffle", "description"]);
                     break;
                 case Upgrade.A:
                     data.cost = 0;
                     data.description = PMod.Instance.Localizations.Localize(["card", "Shuffle", "description"]);
-                    data.exhaust = true;
                     break;
                 case Upgrade.B:
                     data.cost = 2;

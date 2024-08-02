@@ -1,4 +1,5 @@
 ﻿using APurpleApple.Selene.Artifacts;
+using APurpleApple.Selene.Patches;
 using FSPRO;
 using System;
 using System.Collections.Generic;
@@ -9,34 +10,33 @@ using System.Threading.Tasks;
 
 namespace APurpleApple.Selene.CardActions
 {
-    internal class ASeleneMagnetize : CardAction, IAOversized
+    internal class ASeleneMagnetize : CardAction
     {
         public bool pull = true;
 
-        public int offset => -9;
+        //public int offset => -9;
 
-        public Icon icon => new Icon(PMod.sprites[pull ? "icon_magPull" : "icon_magPush"].Sprite, null, Colors.white);
+        public override Icon? GetIcon(State s) => new Icon(PMod.sprites[pull ? "icon_magPull" : "icon_magPush"].Sprite, null, Colors.white);
 
         public override void Begin(G g, State s, Combat c)
         {
-            int cockpitLocalX = s.ship.parts.FindIndex(p => p.type == PType.cockpit);
-            if (cockpitLocalX == -1) cockpitLocalX = s.ship.parts.Count / 2;
-            int cockpitworldX = cockpitLocalX + s.ship.x ;
+            int shipCenter = s.ship.parts.Count / 2;
+            int shipCenterWorldX = shipCenter + s.ship.x ;
 
-            foreach (KeyValuePair<int, StuffBase> item in c.stuff.Where(x=> (x.Key < cockpitworldX) ^ pull).OrderBy<KeyValuePair<int, StuffBase>, int>((KeyValuePair<int, StuffBase> x) => x.Key).ToList())
+            foreach (KeyValuePair<int, StuffBase> item in c.stuff.Where(x=> (x.Key < shipCenterWorldX) ^ pull).OrderBy<KeyValuePair<int, StuffBase>, int>((KeyValuePair<int, StuffBase> x) => x.Key).ToList())
             {
-                DoMoveSingleDrone(s, c, item.Key, ((item.Key > cockpitworldX) ^ pull) ? 1 : -1, true);
+                DoMoveSingleDrone(s, c, item.Key, ((item.Key > shipCenterWorldX) ^ pull) ? 1 : -1, true);
             }
-            foreach (KeyValuePair<int, StuffBase> item in c.stuff.Where(x => (x.Key > cockpitworldX) ^ pull).OrderBy<KeyValuePair<int, StuffBase>, int>((KeyValuePair<int, StuffBase> x) => -x.Key).ToList())
+            foreach (KeyValuePair<int, StuffBase> item in c.stuff.Where(x => (x.Key > shipCenterWorldX) ^ pull).OrderBy<KeyValuePair<int, StuffBase>, int>((KeyValuePair<int, StuffBase> x) => -x.Key).ToList())
             {
-                DoMoveSingleDrone(s, c, item.Key, ((item.Key > cockpitworldX) ^ pull) ? 1 : -1, true);
+                DoMoveSingleDrone(s, c, item.Key, ((item.Key > shipCenterWorldX) ^ pull) ? 1 : -1, true);
             }
             Artifact_Selene? art = s.EnumerateAllArtifacts().FirstOrDefault(a => a is Artifact_Selene) as Artifact_Selene;
             if (art != null)
             {
-                if (art.droneX != cockpitworldX)
+                if (art.droneX != shipCenterWorldX)
                 {
-                    art.droneX += ((art.droneX > cockpitworldX) ^ pull) ? 1 : -1;
+                    art.droneX += ((art.droneX > shipCenterWorldX) ^ pull) ? 1 : -1;
                 }
             }
 
@@ -45,6 +45,7 @@ namespace APurpleApple.Selene.CardActions
         public override List<Tooltip> GetTooltips(State s)
         {
             List<Tooltip> list = base.GetTooltips(s);
+            Patch_Selene.magnetizeHint = pull;
             list.Add(PMod.glossaries[pull ? "MagPull" : "MagPush"]);
             return list;
         }

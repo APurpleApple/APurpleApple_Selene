@@ -15,9 +15,10 @@ namespace APurpleApple.Selene.CardActions
         {
             for (int i = s.ship.parts.Count-1; i >0 ; i--)
             {
-                if (s.ship.parts[i] is SelenePart sp && sp.removedOnCombatEnd == true)
+                ICustomPart? customPart = PMod.SPEApi!.GetCustomPart(s.ship.parts[i]);
+                if (customPart != null && customPart.IsTemporary)
                 {
-                    c.QueueImmediate (new AEjectPart() { ejectedPart = sp, damage = damage });
+                    c.QueueImmediate (new AEjectPart() { ejectedPart = s.ship.parts[i], damage = damage });
                 }
             }
         }

@@ -26,6 +26,14 @@ namespace APurpleApple.Selene.CardActions
             }
 
             s.ship.parts.Remove(part);
+
+            foreach (var item in s.ship.parts)
+            {
+                if (item is PartSelene ps)
+                {
+                    ps.ShipWasModified(s.ship, s, c);
+                }
+            }
         }
     }
 }

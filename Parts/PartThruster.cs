@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace APurpleApple.Selene
 {
-    public class PartThruster : SelenePart
+    public class PartThruster : PartSelene
     {
         public bool upgraded = false;
 

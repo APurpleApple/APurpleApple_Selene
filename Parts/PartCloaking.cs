@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 
 namespace APurpleApple.Selene
 {
-    public class CloakingDevice : SelenePart
+    public class PartCloaking : PartSelene
     {
         public Upgrade upgrade = Upgrade.None;
         public bool hasBeenUsed = false;

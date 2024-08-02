@@ -13,9 +13,9 @@ namespace APurpleApple.Selene.CardActions
         {
             for (int i = 0; i < s.ship.parts.Count; i++)
             {
-                if (s.ship.parts[i] is CloakedPart) continue;
+                if (s.ship.parts[i] is PartCloakedPart) continue;
 
-                s.ship.parts[i] = new CloakedPart() { replacedPart = s.ship.parts[i] };
+                s.ship.parts[i] = new PartCloakedPart() { replacedPart = s.ship.parts[i] };
             }
         }
     }

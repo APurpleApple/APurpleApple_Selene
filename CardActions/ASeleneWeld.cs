@@ -18,11 +18,20 @@ namespace APurpleApple.Selene.CardActions
             if (art == null) return;
 
             Part? part = s.ship.GetPartAtWorldX(art.droneX);
-            if (part == null || part is not SelenePart sp) return;
+            if (part == null) return;
 
-            if (removeBreakable && sp.stunModifier == PStunMod.breakable) sp.stunModifier = PStunMod.none;
-            if (removeTemp && sp.removedOnCombatEnd) sp.removedOnCombatEnd = false;
-            if (removeSingleUse && sp.singleUse) sp.singleUse = false;
+            if (removeBreakable && part.stunModifier == PStunMod.breakable) part.stunModifier = PStunMod.none;
+
+            if (part is PartSelene sp)
+            {
+                if (removeSingleUse && sp.singleUse) sp.singleUse = false;
+            }
+            
+            ICustomPart? cp = PMod.SPEApi!.GetCustomPart(part);
+            if (cp != null)
+            {
+                if (removeTemp && cp.IsTemporary) cp.IsTemporary = false;
+            }
         }
         public override List<Tooltip> GetTooltips(State s)
         {

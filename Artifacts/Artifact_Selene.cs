@@ -45,22 +45,6 @@ namespace APurpleApple.Selene.Artifacts
             return null;
         }
 
-        public void AfterDroneShift(State state, Combat combat, int direction, IDroneShiftHook hook)
-        {
-            foreach (SelenePart item in state.ship.parts.Where(p => p is SelenePart).ToList())
-            {
-                item.AfterDroneShift(state, combat, direction);
-            }
-        }
-
-        public void AfterEvade(State state, Combat combat, int direction, IEvadeHook hook)
-        {
-            foreach (SelenePart item in state.ship.parts.Where(p => p is SelenePart).ToList())
-            {
-                item.AfterPlayerMove(state, combat, direction);
-            }
-        }
-
         public int droneX = 0;
         public double droneXLerped = 0;
         public int craneExtension = 0;
@@ -73,7 +57,7 @@ namespace APurpleApple.Selene.Artifacts
         public double clawOpeningLerped = 0;
 
         public bool placeLeft = false;
-        public SelenePart? grabbedPart;
+        public PartSelene? grabbedPart;
         public string? grabbedPartSkin;
 
         public bool hilight = false;
@@ -197,20 +181,20 @@ namespace APurpleApple.Selene.Artifacts
 
         public override void OnCombatStart(State state, Combat combat)
         {
-            droneX = state.ship.x;
+            droneX = state.ship.x + state.ship.parts.Count / 2;
         }
 
 
         public override void OnCombatEnd(State state)
         {
-            foreach (SelenePart item in state.ship.parts.Where(p => p is SelenePart).ToList())
+            foreach (PartSelene item in state.ship.parts.Where(p => p is PartSelene).ToList())
             {
                 item.OnCombatEnd(state);
             }
 
             for (int i = state.ship.parts.Count -1; i >= 0 ; i--)
             {
-                if (state.ship.parts[i] is SelenePart sp && sp.removedOnCombatEnd)
+                if (state.ship.parts[i] is PartSelene sp && sp.IsTemporary)
                 {
                     sp.Remove(state);
                 }
@@ -219,7 +203,7 @@ namespace APurpleApple.Selene.Artifacts
 
         public override void OnTurnStart(State state, Combat combat)
         {
-            foreach (SelenePart item in state.ship.parts.Where(p=>p is SelenePart).ToList())
+            foreach (PartSelene item in state.ship.parts.Where(p=>p is PartSelene).ToList())
             {
                 item.OnTurnStart(state, combat);
             }
@@ -227,7 +211,7 @@ namespace APurpleApple.Selene.Artifacts
 
         public override void OnTurnEnd(State state, Combat combat)
         {
-            foreach (SelenePart item in state.ship.parts.Where(p => p is SelenePart).ToList())
+            foreach (PartSelene item in state.ship.parts.Where(p => p is PartSelene).ToList())
             {
                 item.OnTurnEnd(state, combat);
             }
@@ -235,11 +219,16 @@ namespace APurpleApple.Selene.Artifacts
 
         public override void OnPlayerTakeNormalDamage(State state, Combat combat, int rawAmount, Part? part)
         {
-            if (part is SelenePart sp)
+            if (part is PartSelene sp)
             {
                 sp.OnHit(state, combat);
                 if (sp.stunModifier == PStunMod.breakable)
                 {
+                    if(state.ship.Get(PMod.statuses["plating"].Status) > 0)
+                    {
+                        combat.QueueImmediate(new AStatus() { status = PMod.statuses["plating"].Status, statusAmount = -1, targetPlayer = true });
+                        return;
+                    }
                     sp.Destroy(state, combat);
                 }
             }

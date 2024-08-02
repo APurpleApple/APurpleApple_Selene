@@ -39,10 +39,10 @@ namespace APurpleApple.Selene.Cards
                     actions.Add(new AStatus() { status = PMod.statuses["reinforce"].Status, statusAmount = 1, targetPlayer = true });
                     break;
                 case Upgrade.A:
-                    actions.Add(new AStatus() { status = PMod.statuses["reinforce"].Status, statusAmount = 3, targetPlayer = true });
+                    actions.Add(new AStatus() { status = PMod.statuses["reinforce"].Status, statusAmount = 1, targetPlayer = true });
                     break;
                 case Upgrade.B:
-                    actions.Add(new AStatus() { status = PMod.statuses["reinforce"].Status, statusAmount = 1, targetPlayer = true });
+                    actions.Add(new AStatus() { status = PMod.statuses["reinforce"].Status, statusAmount = 2, targetPlayer = true });
                     break;
                 default:
                     break;
@@ -60,11 +60,10 @@ namespace APurpleApple.Selene.Cards
                     data.cost = 1;
                     break;
                 case Upgrade.A:
-                    data.cost = 2;
-                    data.retain = true;
+                    data.cost = 0;
                     break;
                 case Upgrade.B:
-                    data.cost = 0;
+                    data.cost = 1;
                     break;
             }
             return data;

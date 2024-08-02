@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using APurpleApple.Selene.CardActions;
 using Microsoft.Win32.SafeHandles;
+using APurpleApple.Selene.Artifacts;
 
 namespace APurpleApple.Selene.Cards
 {
@@ -21,7 +22,7 @@ namespace APurpleApple.Selene.Cards
                 Meta = new()
                 {
                     deck = PMod.decks["selene"].Deck,
-                    rarity = Rarity.common,
+                    rarity = Rarity.uncommon,
                     upgradesTo = [Upgrade.A, Upgrade.B],
                     dontOffer = false
                 },
@@ -37,50 +38,64 @@ namespace APurpleApple.Selene.Cards
             switch (upgrade)
             {
                 case Upgrade.None:
+                    actions.Add(new AStatus() { status = SStatus.droneShift, statusAmount = 1, disabled = flipped, targetPlayer = true });
                     actions.Add(new ASeleneInsertPart()
                     {
+                        disabled = flipped,
                         part = new PartBubble()
                         {
                             skin = PMod.parts["selene_bubble"].UniqueName,
                             type = PType.special,
                             icon = PMod.sprites["icon_part_bubble"].Sprite,
                             stunModifier = PStunMod.breakable,
+                            damageModifier = PDamMod.armor,
                             tooltip = "Part_Bubble",
                             singleUse = false,
-                            removedOnCombatEnd = true,
                         }
                     });
+                    actions.Add(new ADummyAction());
+                    actions.Add(new AStatus() { status = SStatus.droneShift, statusAmount = 1, disabled = !flipped, targetPlayer = true });
+                    actions.Add(new ASpawn() { thing = new Asteroid() { targetPlayer = true }, disabled = !flipped });
                     break;
                 case Upgrade.A:
+                    actions.Add(new AStatus() { status = SStatus.droneShift, statusAmount = 2, disabled = flipped, targetPlayer = true });
                     actions.Add(new ASeleneInsertPart()
                     {
+                        disabled = flipped,
                         part = new PartBubble()
                         {
                             skin = PMod.parts["selene_bubble"].UniqueName,
                             type = PType.special,
                             icon = PMod.sprites["icon_part_bubble"].Sprite,
                             stunModifier = PStunMod.breakable,
+                            damageModifier = PDamMod.armor,
                             tooltip = "Part_Bubble",
                             singleUse = false,
-                            removedOnCombatEnd = true,
                         }
                     });
+                    actions.Add(new ADummyAction());
+                    actions.Add(new AStatus() { status = SStatus.droneShift, statusAmount = 1, disabled = !flipped, targetPlayer = true });
+                    actions.Add(new ASpawn() { thing = new ShieldDrone(){targetPlayer = true }, disabled = !flipped });
                     break;
                 case Upgrade.B:
+                    actions.Add(new AStatus() { status = SStatus.droneShift, statusAmount = 2, disabled = flipped, targetPlayer = true });
                     actions.Add(new ASeleneInsertPart()
                     {
+                        disabled = flipped,
                         part = new PartBubble()
                         {
                             skin = PMod.parts["selene_bubble"].UniqueName,
                             type = PType.special,
                             icon = PMod.sprites["icon_part_bubble"].Sprite,
                             stunModifier = PStunMod.breakable,
+                            damageModifier = PDamMod.armor,
                             tooltip = "Part_Bubble",
                             singleUse = false,
-                            removedOnCombatEnd = true,
                         }
                     });
-                    actions.Add(new ASpawn() { thing = new AttackDrone()});
+                    actions.Add(new ADummyAction());
+                    actions.Add(new AStatus() { status = SStatus.droneShift, statusAmount = 1, disabled = !flipped, targetPlayer = true });
+                    actions.Add(new ASpawn() { thing = new AttackDrone(), disabled = !flipped });
                     break;
                 default:
                     break;
@@ -96,16 +111,27 @@ namespace APurpleApple.Selene.Cards
             switch (upgrade)
             {
                 case Upgrade.None:
-                    data.cost = 2;
+                    data.cost = 1;
+                    data.floppable = true;
                     break;
                 case Upgrade.A:
                     data.cost = 1;
+                    data.floppable = true;
                     break;
                 case Upgrade.B:
-                    data.cost = 2;
+                    data.cost = 1;
+                    data.floppable = true;
                     break;
                 default:
                     break;
+            }
+
+            data.artTint = "ffffff";
+            data.art = PMod.sprites[flipped ? "selene_cardBackAttach_tbot" : "selene_cardBackAttach_ttop"].Sprite;
+
+            if (state.EnumerateAllArtifacts().Any(a => a is Artifact_CheapRandom))
+            {
+                data.cost--;
             }
             return data;
         }

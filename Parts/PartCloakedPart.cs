@@ -6,16 +6,17 @@ using System.Threading.Tasks;
 
 namespace APurpleApple.Selene.Parts
 {
-    internal class CloakedPart : SelenePart
+    internal class PartCloakedPart : PartSelene
     {
         public Part? replacedPart;
         public double anim = 1;
         public double targetAnim = 0;
-        public CloakedPart()
+        public PartCloakedPart()
         {
             skin = "";
             isRendered = true;
             type = PType.empty;
+            IsTemporary = false;
         }
         public override List<Tooltip> GetTooltips()
         {
@@ -29,7 +30,7 @@ namespace APurpleApple.Selene.Parts
             int index = s.ship.parts.IndexOf(this);
             s.ship.parts[index] = replacedPart;
 
-            if (replacedPart is SelenePart sp)
+            if (replacedPart is PartSelene sp)
             {
                 //sp.OnTurnStart(s, c);
             }
@@ -42,17 +43,18 @@ namespace APurpleApple.Selene.Parts
             int index = s.ship.parts.IndexOf(this);
             s.ship.parts[index] = replacedPart;
 
-            if (replacedPart is SelenePart sp)
+            if (replacedPart is PartSelene sp)
             {
                 sp.OnCombatEnd(s);
             }
         }
 
 
-        public override void Render(G g, Vec v, int i)
+        public override void Render(Ship ship, int localX, G g, Vec v, Vec worldPos)
         {
             if (replacedPart == null) return;
             if (replacedPart.skin == null) return;
+            v = GetPartPos(v, worldPos, localX, ship);
 
             anim = Mutil.SnapLerp(anim, targetAnim, 1, g.dt);
 

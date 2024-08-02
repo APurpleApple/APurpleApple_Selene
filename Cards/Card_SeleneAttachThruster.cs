@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using APurpleApple.Selene.CardActions;
+using APurpleApple.Selene.Artifacts;
 
 namespace APurpleApple.Selene.Cards
 {
@@ -47,7 +48,6 @@ namespace APurpleApple.Selene.Cards
                             stunModifier = PStunMod.breakable,
                             tooltip = flipped ? "Part_ThrusterRight" : "Part_ThrusterLeft",
                             singleUse = false,
-                            removedOnCombatEnd = true,
                         }
                     });
                     break;
@@ -64,7 +64,6 @@ namespace APurpleApple.Selene.Cards
                             tooltip = flipped ? "Part_ThrusterV2Right" : "Part_ThrusterV2Left",
                             singleUse = false,
                             upgraded = true,
-                            removedOnCombatEnd = true,
                         }
                     });
                     break;
@@ -80,7 +79,6 @@ namespace APurpleApple.Selene.Cards
                             stunModifier = PStunMod.breakable,
                             tooltip = flipped ? "Part_ThrusterRight" : "Part_ThrusterLeft",
                             singleUse = false,
-                            removedOnCombatEnd = true,
                         }
                     });
                     actions.Add(new AStatus() { status = SStatus.evade, statusAmount = 1, targetPlayer = true});
@@ -97,6 +95,11 @@ namespace APurpleApple.Selene.Cards
             CardData data = new CardData();
             data.cost = 1;
             data.flippable = true;
+
+            if (state.EnumerateAllArtifacts().Any(a => a is Artifact_CheapRandom))
+            {
+                data.cost--;
+            }
             return data;
         }
 

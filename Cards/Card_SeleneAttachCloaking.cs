@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using APurpleApple.Selene.CardActions;
+using APurpleApple.Selene.Artifacts;
 
 namespace APurpleApple.Selene.Cards
 {
@@ -38,45 +39,42 @@ namespace APurpleApple.Selene.Cards
                 case Upgrade.None:
                     actions.Add(new ASeleneInsertPart()
                     {
-                        part = new CloakingDevice()
+                        part = new PartCloaking()
                         {
                             skin = PMod.parts["selene_cloak"].UniqueName,
-                            type = PType.missiles,
+                            type = PType.special,
                             icon = PMod.sprites["icon_part_cloak"].Sprite,
                             stunModifier = PStunMod.breakable,
                             tooltip = "Part_Cloak",
                             singleUse = true,
-                            removedOnCombatEnd = true,
                         }
                     });
                     break;
                 case Upgrade.A:
                     actions.Add(new ASeleneInsertPart()
                     {
-                        part = new CloakingDevice()
+                        part = new PartCloaking()
                         {
                             skin = PMod.parts["selene_cloak"].UniqueName,
-                            type = PType.missiles,
+                            type = PType.special,
                             icon = PMod.sprites["icon_part_cloak"].Sprite,
                             stunModifier = PStunMod.breakable,
                             tooltip = "Part_Cloak",
-                            removedOnCombatEnd = true,
                         }
                     });
                     break;
                 case Upgrade.B:
                     actions.Add(new ASeleneInsertPart()
                     {
-                        part = new CloakingDevice()
+                        part = new PartCloaking()
                         {
                             upgrade = Upgrade.B,
                             skin = PMod.parts["selene_cloak"].UniqueName,
-                            type = PType.missiles,
+                            type = PType.special,
                             icon = PMod.sprites["icon_part_cloak"].Sprite,
                             stunModifier = PStunMod.breakable,
                             singleUse = true,
                             tooltip = "Part_Cloak",
-                            removedOnCombatEnd = true,
                         }
                     });
                     break;
@@ -92,6 +90,11 @@ namespace APurpleApple.Selene.Cards
         {
             CardData data = new CardData();
             data.cost = 1;
+
+            if (state.EnumerateAllArtifacts().Any(a => a is Artifact_CheapRandom))
+            {
+                data.cost--;
+            }
             return data;
         }
 

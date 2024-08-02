@@ -18,8 +18,7 @@ namespace APurpleApple.Selene.CardActions
         {
             Artifact_Selene? art = s.EnumerateAllArtifacts().FirstOrDefault(a=>a is Artifact_Selene) as Artifact_Selene;
             if (art == null) return;
-            int cockpitLocalX = s.ship.parts.FindIndex(p => p.type == PType.cockpit);
-            if (cockpitLocalX == -1) cockpitLocalX = s.ship.parts.Count / 2;
+            int cockpitLocalX = s.ship.parts.Count / 2;
             art.droneX = cockpitLocalX + s.ship.x;
         }
 

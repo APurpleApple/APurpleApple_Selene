@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using APurpleApple.Selene.CardActions;
+using APurpleApple.Selene.Artifacts;
 
 namespace APurpleApple.Selene.Cards
 {
@@ -41,6 +42,11 @@ namespace APurpleApple.Selene.Cards
             CardData data = new CardData();
             data.cost = 1;
             data.flippable = true;
+
+            if (state.EnumerateAllArtifacts().Any(a => a is Artifact_CheapRandom))
+            {
+                data.cost--;
+            }
             return data;
         }
 

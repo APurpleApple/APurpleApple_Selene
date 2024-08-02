@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using APurpleApple.Selene.CardActions;
+using APurpleApple.Selene.Artifacts;
 
 namespace APurpleApple.Selene.Cards
 {
@@ -36,9 +37,10 @@ namespace APurpleApple.Selene.Cards
             switch (upgrade)
             {
                 case Upgrade.None:
+                    actions.Add(new ASpawn() { thing = new Missile()});
                     actions.Add(new ASeleneInsertPart()
                     {
-                        part = new TemporaryBay()
+                        part = new PartBay()
                         {
                             skin = PMod.parts["selene_bay"].UniqueName,
                             type = PType.missiles,
@@ -46,42 +48,60 @@ namespace APurpleApple.Selene.Cards
                             stunModifier = PStunMod.breakable,
                             tooltip = "Part_Bay",
                             singleUse = true,
-                            removedOnCombatEnd = true,
                         }
                     });
                     break;
                 case Upgrade.A:
-                    actions.Add(new ADroneMove()
-                    {
-                        dir = 1,
-                    });
+                    actions.Add(new AStatus() { status = PMod.statuses["reinforce"].Status, statusAmount = 1, targetPlayer = true });
                     actions.Add(new ASeleneInsertPart()
                     {
-                        part = new TemporaryBay()
+                        part = new PartBay()
                         {
                             skin = PMod.parts["selene_bay"].UniqueName,
                             type = PType.missiles,
                             icon = PMod.sprites["icon_part_bay"].Sprite,
                             singleUse = true,
                             tooltip = "Part_Bay",
-                            damageModifier = PDamMod.armor,
                             stunModifier = PStunMod.breakable,
-                            removedOnCombatEnd = true,
                         }
                     });
+                    actions.Add(new ASpawn() { thing = new Missile() });
                     break;
                 case Upgrade.B:
                     actions.Add(new ASeleneInsertPart()
                     {
-                        part = new TemporaryBay()
+                        part = new PartBay()
                         {
                             skin = PMod.parts["selene_bay"].UniqueName,
                             type = PType.missiles,
                             icon = PMod.sprites["icon_part_bay"].Sprite,
                             stunModifier = PStunMod.breakable,
-                            singleUse = false,
+                            singleUse = true,
                             tooltip = "Part_Bay",
-                            removedOnCombatEnd = true,
+                        }
+                    });
+                    actions.Add(new ASeleneInsertPart()
+                    {
+                        part = new PartBay()
+                        {
+                            skin = PMod.parts["selene_bay"].UniqueName,
+                            type = PType.missiles,
+                            icon = PMod.sprites["icon_part_bay"].Sprite,
+                            singleUse = true,
+                            tooltip = "Part_Bay",
+                            stunModifier = PStunMod.breakable,
+                        }
+                    });
+                    actions.Add(new ASeleneInsertPart()
+                    {
+                        part = new PartBay()
+                        {
+                            skin = PMod.parts["selene_bay"].UniqueName,
+                            type = PType.missiles,
+                            icon = PMod.sprites["icon_part_bay"].Sprite,
+                            singleUse = true,
+                            tooltip = "Part_Bay",
+                            stunModifier = PStunMod.breakable,
                         }
                     });
                     break;
@@ -96,6 +116,7 @@ namespace APurpleApple.Selene.Cards
         public override CardData GetData(State state)
         {
             CardData data = new CardData();
+            
             switch (upgrade)
             {
                 case Upgrade.None:
@@ -104,15 +125,19 @@ namespace APurpleApple.Selene.Cards
                     break;
                 case Upgrade.A:
                     data.cost = 1;
-                    data.flippable = true;
 
                     break;
                 case Upgrade.B:
-                    data.cost = 4;
+                    data.cost = 2;
 
                     break;
                 default:
                     break;
+            }
+
+            if (state.EnumerateAllArtifacts().Any(a => a is Artifact_CheapRandom))
+            {
+                data.cost--;
             }
             return data;
         }

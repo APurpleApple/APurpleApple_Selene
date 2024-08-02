@@ -24,7 +24,7 @@ namespace APurpleApple.Selene.Cards
                     dontOffer = true
                 },
                 Art = PMod.sprites["selene_cardBackAttach"].Sprite,
-                Name = PMod.Instance.AnyLocalizations.Bind(["card", "RandomAttach", "name"]).Localize
+                Name = PMod.Instance.AnyLocalizations.Bind(["card", "RandomAttach", "name"]).Localize,
             });
         }
 
@@ -32,6 +32,7 @@ namespace APurpleApple.Selene.Cards
         {
             CardData data = base.GetData(state);
             data.description = PMod.Instance.Localizations.Localize(["card", "RandomAttach", "description"]);
+            data.cost = -1;
             return data;
         }
     }

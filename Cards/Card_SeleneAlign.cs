@@ -42,11 +42,12 @@ namespace APurpleApple.Selene.Cards
                 case Upgrade.A:
                     actions.Add(new ADroneMove() { dir = 1});
                     actions.Add(new AMove() { dir = -1, targetPlayer = true});
-                    actions.Add(new ADrawCard(){count = 1});
+                    actions.Add(new ADrawCard(){count = 2});
                     break;
                 case Upgrade.B:
                     actions.Add(new ASeleneAlignDrone());
-                    actions.Add(new AStatus() { status = Status.droneShift, statusAmount = 1, targetPlayer = true });
+                    actions.Add(new AStatus() { status = Status.droneShift, statusAmount = 2, targetPlayer = true });
+                    actions.Add(new AStatus() { status = Status.evade, statusAmount = 1, targetPlayer = true });
                     break;
                 default:
                     break;

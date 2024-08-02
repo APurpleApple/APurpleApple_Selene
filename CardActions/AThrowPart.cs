@@ -6,6 +6,7 @@ using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 using APurpleApple.Selene.CardActions;
+using APurpleApple.Selene.Artifacts;
 
 namespace APurpleApple.Selene
 {
@@ -17,10 +18,11 @@ namespace APurpleApple.Selene
 
         public override void Begin(G g, State s, Combat c)
         {
+
             Ship ship = c.otherShip;
             RaycastResult raycastResult = CombatUtils.RaycastGlobal(c, ship, false, worldX);
 
-            c.fx.Add(new VFX_PartEjection() { part = ejectedPart, worldX = worldX * 16, spins = raycastResult.hitDrone || raycastResult.hitShip });
+            c.fx.Add(new VFX_PartEjection() { part = ejectedPart, worldX = worldX * 16, spins = raycastResult.hitDrone || raycastResult.hitShip, hitDrone = raycastResult.hitDrone });
             DamageDone dmg = new DamageDone();
             if (raycastResult.hitShip)
             {

@@ -9,12 +9,17 @@ namespace APurpleApple.Selene.CardActions
 {
     internal class ASeleneInsertPart : CardAction
     {
-        public required SelenePart part;
+        public required PartSelene part;
         public override void Begin(G g, State s, Combat c)
         {
             timer = 1.0;
             Artifact_Selene? artifact_selene = g.state.EnumerateAllArtifacts().FirstOrDefault(a => a is Artifact_Selene) as Artifact_Selene;
             if (artifact_selene == null) return;
+
+            if (s.EnumerateAllArtifacts().Any(a=>a is Artifact_CheapRandom))
+            {
+                new ADroneMove() {dir = 3, isRandom = true}.Begin(g, s, c);
+            }
 
             int insertIndex = artifact_selene.droneX - s.ship.x;
 
@@ -25,7 +30,11 @@ namespace APurpleApple.Selene.CardActions
                 artifact_selene.grabbedPart = part;
                 artifact_selene.placeLeft = insertIndex <= s.ship.parts.Count / 2;
                 artifact_selene.grabbedPartSkin = part.skin;
-                c.QueueImmediate(new AThrowPart() { worldX = artifact_selene.droneX, ejectedPart = part});
+
+                int damage = 1;
+                if (s.EnumerateAllArtifacts().Any(a => a is Artifact_EjectBuff)) damage++;
+
+                c.QueueImmediate(new AThrowPart() { worldX = artifact_selene.droneX, ejectedPart = part, damage = damage});
                 timer = .6;
                 return;
             }
@@ -58,6 +67,13 @@ namespace APurpleApple.Selene.CardActions
             part.skin = "scaffolding";
             s.ship.parts.Insert(insertIndex, part);
 
+            foreach (var item in s.ship.parts)
+            {
+                if (item is PartSelene ps && item != part)
+                {
+                    ps.ShipWasModified(s.ship, s, c);
+                }
+            }
         }
         public override List<Tooltip> GetTooltips(State s)
         {
@@ -70,7 +86,7 @@ namespace APurpleApple.Selene.CardActions
             {
                 tooltips.Add(PMod.glossaries["SingleUse"]);
             }
-            if (part.removedOnCombatEnd)
+            if (part.IsTemporary)
             {
                 tooltips.Add(PMod.glossaries["Temp"]);
             }
