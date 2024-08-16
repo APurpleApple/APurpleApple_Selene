@@ -191,14 +191,6 @@ namespace APurpleApple.Selene.Artifacts
             {
                 item.OnCombatEnd(state);
             }
-
-            for (int i = state.ship.parts.Count -1; i >= 0 ; i--)
-            {
-                if (state.ship.parts[i] is PartSelene sp && sp.IsTemporary)
-                {
-                    sp.Remove(state);
-                }
-            }
         }
 
         public override void OnTurnStart(State state, Combat combat)

@@ -45,7 +45,6 @@ namespace APurpleApple.Selene
 
         }
 
-        public virtual void Render(Ship ship, int localX, G g, Vec v, Vec worldPos) { }
         public virtual bool DoVanillaRender(Ship ship, int localX, G g) => true;
 
         public virtual void RenderUI(Ship ship, G g, Combat? combat, int localX, string keyPrefix, bool isPreview, Vec v)
@@ -136,35 +135,6 @@ namespace APurpleApple.Selene
         public Vec GetPartPos(Vec v, Vec worldPos, int localX, Ship ship)
         {
            return v + worldPos + new Vec((xLerped ?? ((double)localX)) * 16.0, -32.0 + (ship.isPlayerShip ? offset.y : (1.0 + (0.0 - offset.y))));
-        }
-
-        public virtual void Remove(State s)
-        {
-            int index = s.ship.parts.IndexOf(this);
-
-            if (index < s.ship.parts.Count / 2)
-            {
-                s.ship.x += 1;
-                s.ship.xLerped = s.ship.x;
-
-                foreach (var part in s.ship.parts)
-                {
-                    part.xLerped -= 1;
-                }
-            }
-
-            s.ship.parts.Remove(this);
-
-            if (s.route is Combat c)
-            {
-                foreach (var item in s.ship.parts)
-                {
-                    if (item is PartSelene ps)
-                    {
-                        ps.ShipWasModified(s.ship, s, c);
-                    }
-                }
-            }
         }
 
         public virtual void OnTurnStart(State s, Combat c)
