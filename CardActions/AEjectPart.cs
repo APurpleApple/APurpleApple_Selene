@@ -41,7 +41,7 @@ namespace APurpleApple.Selene
             };
 
             s.ship.parts[localX] = scaffold;
-            c.QueueImmediate(new ASeleneRemovePart() { part = scaffold });
+            c.QueueImmediate(new ASeleneRemovePart() { uuid = scaffold.uuid });
             Ship ship = c.otherShip;
             RaycastResult raycastResult = CombatUtils.RaycastFromShipLocal(s, c, localX, false);
 

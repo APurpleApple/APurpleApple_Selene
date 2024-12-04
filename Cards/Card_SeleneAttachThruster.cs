@@ -43,7 +43,6 @@ namespace APurpleApple.Selene.Cards
                         {
                             skin = PMod.parts["selene_thruster"].UniqueName,
                             flip = flipped,
-                            type = PType.special,
                             icon = PMod.sprites[flipped ? "icon_part_thruster_right" : "icon_part_thruster_left"].Sprite,
                             stunModifier = PStunMod.breakable,
                             tooltip = flipped ? "Part_ThrusterRight" : "Part_ThrusterLeft",
@@ -58,7 +57,6 @@ namespace APurpleApple.Selene.Cards
                         {
                             skin = PMod.parts["selene_thrusterV2"].UniqueName,
                             flip = flipped,
-                            type = PType.special,
                             icon = PMod.sprites[flipped ? "icon_part_thruster_v2_right" : "icon_part_thruster_v2_left"].Sprite,
                             stunModifier = PStunMod.breakable,
                             tooltip = flipped ? "Part_ThrusterV2Right" : "Part_ThrusterV2Left",
@@ -74,7 +72,6 @@ namespace APurpleApple.Selene.Cards
                         {
                             skin = PMod.parts["selene_thruster"].UniqueName,
                             flip = flipped,
-                            type = PType.special,
                             icon = PMod.sprites[flipped ? "icon_part_thruster_right" : "icon_part_thruster_left"].Sprite,
                             stunModifier = PStunMod.breakable,
                             tooltip = flipped ? "Part_ThrusterRight" : "Part_ThrusterLeft",
@@ -95,11 +92,6 @@ namespace APurpleApple.Selene.Cards
             CardData data = new CardData();
             data.cost = 1;
             data.flippable = true;
-
-            if (state.EnumerateAllArtifacts().Any(a => a is Artifact_CheapRandom))
-            {
-                data.cost--;
-            }
             return data;
         }
 

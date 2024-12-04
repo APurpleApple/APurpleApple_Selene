@@ -43,7 +43,6 @@ namespace APurpleApple.Selene.Cards
                         part = new PartShieldProjector()
                         {
                             skin = PMod.parts["selene_shield"].UniqueName,
-                            type = PType.special,
                             icon = PMod.sprites["icon_part_shield"].Sprite,
                             stunModifier = PStunMod.breakable,
                             tooltip = "Part_Shield",
@@ -58,7 +57,6 @@ namespace APurpleApple.Selene.Cards
                         part = new PartShieldProjector()
                         {
                             skin = PMod.parts["selene_shield"].UniqueName,
-                            type = PType.special,
                             icon = PMod.sprites["icon_part_shield"].Sprite,
                             stunModifier = PStunMod.breakable,
                             tooltip = "Part_Shield",
@@ -75,7 +73,6 @@ namespace APurpleApple.Selene.Cards
                         {
                             blocked = 2,
                             skin = PMod.parts["selene_shieldV2"].UniqueName,
-                            type = PType.special,
                             icon = PMod.sprites["icon_part_shield_v2"].Sprite,
                             stunModifier = PStunMod.breakable,
                             tooltip = "Part_ShieldV2",
@@ -108,11 +105,6 @@ namespace APurpleApple.Selene.Cards
                     break;
                 default:
                     break;
-            }
-
-            if (state.EnumerateAllArtifacts().Any(a => a is Artifact_CheapRandom))
-            {
-                data.cost--;
             }
             return data;
         }

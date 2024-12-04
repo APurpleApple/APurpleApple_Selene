@@ -11,3 +11,8 @@ internal interface IModArtifact
 {
     static abstract void Register(IModHelper helper);
 }
+
+internal interface IModPart
+{
+    static abstract void Register(IModHelper helper);
+}

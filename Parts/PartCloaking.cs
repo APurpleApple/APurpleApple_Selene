@@ -6,16 +6,35 @@ using System.Text;
 using System.Threading.Tasks;
 using APurpleApple.Selene.Cards;
 using System.Runtime.InteropServices;
+using Nickel;
 
 namespace APurpleApple.Selene
 {
-    public class PartCloaking : PartSelene
+    public class PartCloaking : PartSelene, IModPart
     {
         public Upgrade upgrade = Upgrade.None;
         public bool hasBeenUsed = false;
-        public override List<Tooltip> GetTooltips()
+
+        public PartCloaking()
         {
-            List<Tooltip> list = base.GetTooltips();
+            type = PMod.pTypes["Cloaking"].PartType;
+        }
+
+
+        public static void Register(IModHelper helper)
+        {
+            PMod.Instance.RegisterPartTypeAndGlossary("Cloak",
+            () => PMod.sprites["icon_part_cloak"].Sprite,
+            () => PMod.Instance.Localizations.Localize(["parts", "Cloak", "name"]),
+            () => PMod.Instance.Localizations.Localize(["parts", "Cloak", "description"]),
+            helper);
+            PMod.parts["selene_cloak"] = helper.Content.Ships.RegisterPart("selene_cloak", new PartConfiguration() { Sprite = PMod.sprites["selene_part_cloak"].Sprite, DisabledSprite = SSpr.parts_scaffolding });
+        }
+
+        public override List<Tooltip>? GetTooltips(State s)
+        {
+            type = PMod.pTypes["Cloaking"].PartType;
+            List<Tooltip> list = base.GetTooltips(s) ?? new List<Tooltip>();
             list.Add(new TTCard() { card = new Card_SeleneActivateCloak() { upgrade = upgrade } });
             return list;
         }

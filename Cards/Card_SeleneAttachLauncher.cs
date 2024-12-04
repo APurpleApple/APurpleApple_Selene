@@ -42,7 +42,6 @@ namespace APurpleApple.Selene.Cards
                         part = new PartMissileLauncher()
                         {
                             skin = PMod.parts["selene_launcher"].UniqueName,
-                            type = PType.special,
                             icon = PMod.sprites["icon_part_launcher"].Sprite,
                             stunModifier = PStunMod.breakable,
                             launched = new Missile(),
@@ -56,10 +55,10 @@ namespace APurpleApple.Selene.Cards
                         part = new PartMissileLauncher()
                         {
                             skin = PMod.parts["selene_launcherHeavy"].UniqueName,
-                            type = PType.special,
                             icon = PMod.sprites["icon_part_launcherHeavy"].Sprite,
                             stunModifier = PStunMod.breakable,
                             launched = new Missile() { missileType = MissileType.heavy },
+                            upgraded = true,
                             tooltip = "Part_LauncherHeavy",
                         }
                     });
@@ -70,7 +69,6 @@ namespace APurpleApple.Selene.Cards
                         part = new PartMissileLauncher()
                         {
                             skin = PMod.parts["selene_launcher"].UniqueName,
-                            type = PType.special,
                             icon = PMod.sprites["icon_part_launcher"].Sprite,
                             stunModifier = PStunMod.breakable,
                             launched = new Missile(),
@@ -96,10 +94,6 @@ namespace APurpleApple.Selene.Cards
                 data.exhaust = true;
             }
 
-            if (state.EnumerateAllArtifacts().Any(a => a is Artifact_CheapRandom))
-            {
-                data.cost--;
-            }
             return data;
         }
 

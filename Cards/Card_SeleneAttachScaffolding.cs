@@ -43,10 +43,6 @@ namespace APurpleApple.Selene.Cards
             data.cost = 1;
             data.flippable = true;
 
-            if (state.EnumerateAllArtifacts().Any(a => a is Artifact_CheapRandom))
-            {
-                data.cost--;
-            }
             return data;
         }
 

@@ -38,7 +38,6 @@ namespace APurpleApple.Selene.Cards
                 part = new PartDynamoCannon()
                 {
                     skin = PMod.parts["selene_dynamo"].UniqueName,
-                    type = PType.special,
                     icon = PMod.sprites["icon_part_dynamo"].Sprite,
                     stunModifier = PStunMod.breakable,
                     tooltip = "Part_Dynamo",
@@ -85,10 +84,6 @@ namespace APurpleApple.Selene.Cards
                     break;
             }
 
-            if (state.EnumerateAllArtifacts().Any(a => a is Artifact_CheapRandom))
-            {
-                data.cost--;
-            }
             return data;
         }
 

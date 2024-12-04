@@ -43,7 +43,6 @@ namespace APurpleApple.Selene.Cards
                         part = new PartReactor()
                         {
                             skin = PMod.parts["selene_reactor"].UniqueName,
-                            type = PType.special,
                             icon = PMod.sprites["icon_part_reactor"].Sprite,
                             stunModifier = PStunMod.breakable,
                             damageModifier = PDamMod.weak,
@@ -63,7 +62,6 @@ namespace APurpleApple.Selene.Cards
                         part = new PartReactor()
                         {
                             skin = PMod.parts["selene_reactor"].UniqueName,
-                            type = PType.special,
                             icon = PMod.sprites["icon_part_reactor"].Sprite,
                             stunModifier = PStunMod.breakable,
                             damageModifier = PDamMod.none,
@@ -77,7 +75,6 @@ namespace APurpleApple.Selene.Cards
                         part = new PartReactor()
                         {
                             skin = PMod.parts["selene_reactor"].UniqueName,
-                            type = PType.special,
                             icon = PMod.sprites["icon_part_reactor"].Sprite,
                             stunModifier = PStunMod.breakable,
                             damageModifier = PDamMod.weak,
@@ -89,7 +86,6 @@ namespace APurpleApple.Selene.Cards
                         part = new PartReactor()
                         {
                             skin = PMod.parts["selene_reactor"].UniqueName,
-                            type = PType.special,
                             icon = PMod.sprites["icon_part_reactor"].Sprite,
                             stunModifier = PStunMod.breakable,
                             damageModifier = PDamMod.weak,
@@ -101,7 +97,6 @@ namespace APurpleApple.Selene.Cards
                         part = new PartReactor()
                         {
                             skin = PMod.parts["selene_reactor"].UniqueName,
-                            type = PType.special,
                             icon = PMod.sprites["icon_part_reactor"].Sprite,
                             stunModifier = PStunMod.breakable,
                             damageModifier = PDamMod.weak,
@@ -136,10 +131,6 @@ namespace APurpleApple.Selene.Cards
                     break;
             }
 
-            if (state.EnumerateAllArtifacts().Any(a => a is Artifact_CheapRandom))
-            {
-                data.cost--;
-            }
             return data;
         }
 

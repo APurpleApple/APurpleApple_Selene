@@ -42,7 +42,6 @@ namespace APurpleApple.Selene.Cards
                         part = new PartCloaking()
                         {
                             skin = PMod.parts["selene_cloak"].UniqueName,
-                            type = PType.special,
                             icon = PMod.sprites["icon_part_cloak"].Sprite,
                             stunModifier = PStunMod.breakable,
                             tooltip = "Part_Cloak",
@@ -56,7 +55,6 @@ namespace APurpleApple.Selene.Cards
                         part = new PartCloaking()
                         {
                             skin = PMod.parts["selene_cloak"].UniqueName,
-                            type = PType.special,
                             icon = PMod.sprites["icon_part_cloak"].Sprite,
                             stunModifier = PStunMod.breakable,
                             tooltip = "Part_Cloak",
@@ -70,7 +68,6 @@ namespace APurpleApple.Selene.Cards
                         {
                             upgrade = Upgrade.B,
                             skin = PMod.parts["selene_cloak"].UniqueName,
-                            type = PType.special,
                             icon = PMod.sprites["icon_part_cloak"].Sprite,
                             stunModifier = PStunMod.breakable,
                             singleUse = true,
@@ -91,10 +88,6 @@ namespace APurpleApple.Selene.Cards
             CardData data = new CardData();
             data.cost = 1;
 
-            if (state.EnumerateAllArtifacts().Any(a => a is Artifact_CheapRandom))
-            {
-                data.cost--;
-            }
             return data;
         }
 

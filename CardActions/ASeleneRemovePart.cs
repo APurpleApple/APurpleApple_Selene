@@ -9,10 +9,10 @@ namespace APurpleApple.Selene.CardActions
 {
     internal class ASeleneRemovePart : CardAction
     {
-        public required Part part;
+        public required int uuid;
         public override void Begin(G g, State s, Combat c)
         {
-            int index = s.ship.parts.IndexOf(part);
+            int index = s.ship.parts.FindIndex(p=>p.uuid == uuid);
 
             if (index < s.ship.parts.Count / 2)
             {
@@ -25,7 +25,7 @@ namespace APurpleApple.Selene.CardActions
                 }
             }
 
-            s.ship.parts.Remove(part);
+            s.ship.parts.RemoveAt(index);
 
             foreach (var item in s.ship.parts)
             {

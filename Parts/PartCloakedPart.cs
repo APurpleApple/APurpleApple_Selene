@@ -18,9 +18,9 @@ namespace APurpleApple.Selene.Parts
             type = PType.empty;
             IsTemporary = false;
         }
-        public override List<Tooltip> GetTooltips()
+        public override List<Tooltip>? GetTooltips(State s)
         {
-            return new List<Tooltip>();
+            return null;
         }
 
         public override void OnTurnStart(State s, Combat c)

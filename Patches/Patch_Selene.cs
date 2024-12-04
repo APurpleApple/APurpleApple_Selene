@@ -1,4 +1,5 @@
 ﻿using APurpleApple.Selene.Artifacts;
+using APurpleApple.Selene.CardActions;
 using APurpleApple.Selene.ExternalAPIs;
 using APurpleApple.Selene.Parts;
 using FSPRO;
@@ -205,6 +206,32 @@ namespace APurpleApple.Selene.Patches
                 part.Render(g, vec3, i);
             }
         }*/
+
+        [HarmonyPatch(typeof(Card), nameof(Card.GetDataWithOverrides)), HarmonyPostfix]
+        public static void ModifiyAttachCardsCost(Card __instance, State __0, ref CardData __result)
+        {
+            State s = __0;
+            if (s == DB.fakeState || s.route is not Combat c) return;
+
+            bool? isAttach = null;
+
+            if (s.ship.Get(PMod.statuses["cheapAttach"].Status) > 0)
+            {
+                isAttach ??= __instance.GetActionsOverridden(s, c).Any(c => c is ASeleneInsertPart);
+                if (isAttach.Value)
+                {
+                    __result.cost = int.Min(0, __result.cost - 1);
+                }
+            }
+            if (s.EnumerateAllArtifacts().Any(a => a is Artifact_CheapRandom))
+            {
+                isAttach ??= __instance.GetActionsOverridden(s, c).Any(c => c is ASeleneInsertPart);
+                if (isAttach.Value)
+                {
+                    __result.cost = int.Min(0, __result.cost - 1);
+                }
+            }
+        }
 
         [HarmonyPatch(typeof(AAttack), nameof(AAttack.Begin)), HarmonyPrefix]
         public static void ConstructorDroneDodgeAnim(AAttack __instance, Combat c, State s)

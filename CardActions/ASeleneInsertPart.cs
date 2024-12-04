@@ -80,7 +80,8 @@ namespace APurpleApple.Selene.CardActions
             List<Tooltip> tooltips = base.GetTooltips(s);
 
             tooltips.Add(PMod.glossaries["AttachPart"]);
-            tooltips.AddRange(part.GetTooltips());
+            tooltips.Add(PMod.glossaries[part.tooltip]);
+            tooltips.AddRange(part.GetTooltips(s) ?? new List<Tooltip>());
 
             if (part.singleUse)
             {

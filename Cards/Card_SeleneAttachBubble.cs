@@ -45,7 +45,6 @@ namespace APurpleApple.Selene.Cards
                         part = new PartBubble()
                         {
                             skin = PMod.parts["selene_bubble"].UniqueName,
-                            type = PType.special,
                             icon = PMod.sprites["icon_part_bubble"].Sprite,
                             stunModifier = PStunMod.breakable,
                             damageModifier = PDamMod.armor,
@@ -65,7 +64,7 @@ namespace APurpleApple.Selene.Cards
                         part = new PartBubble()
                         {
                             skin = PMod.parts["selene_bubble"].UniqueName,
-                            type = PType.special,
+                            type = PMod.pTypes["Bubble"].PartType,
                             icon = PMod.sprites["icon_part_bubble"].Sprite,
                             stunModifier = PStunMod.breakable,
                             damageModifier = PDamMod.armor,
@@ -85,7 +84,7 @@ namespace APurpleApple.Selene.Cards
                         part = new PartBubble()
                         {
                             skin = PMod.parts["selene_bubble"].UniqueName,
-                            type = PType.special,
+                            type = PMod.pTypes["Bubble"].PartType,
                             icon = PMod.sprites["icon_part_bubble"].Sprite,
                             stunModifier = PStunMod.breakable,
                             damageModifier = PDamMod.armor,
@@ -129,10 +128,6 @@ namespace APurpleApple.Selene.Cards
             data.artTint = "ffffff";
             data.art = PMod.sprites[flipped ? "selene_cardBackAttach_tbot" : "selene_cardBackAttach_ttop"].Sprite;
 
-            if (state.EnumerateAllArtifacts().Any(a => a is Artifact_CheapRandom))
-            {
-                data.cost--;
-            }
             return data;
         }
 

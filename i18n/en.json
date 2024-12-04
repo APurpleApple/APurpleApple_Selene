@@ -70,6 +70,10 @@
     "Plating": {
       "name": "PLATING",
       "description": "The next time a part should be destroyed because of <c=part>breakable</c>, it isn't."
+    },
+    "CheapAttach": {
+      "name": "CHEAP ATTACH",
+      "description": "The next attach card you play costs 1 less."
     }
   },
   "partTrait": {
@@ -113,19 +117,19 @@
     },
     "ThrusterRight": {
       "name": "THRUSTER",
-      "description": "On turn end, pushes the ship 1 spaces to the left."
+      "description": "On turn end, pushes the ship 1 space <c=keyword>LEFT</c>."
     },
     "ThrusterV2Right": {
       "name": "THRUSTER V2",
-      "description": "On turn end, pushes the ship 2 spaces to the left."
+      "description": "On turn end, pushes the ship 2 spaces <c=keyword>LEFT</c>."
     },
     "ThrusterLeft": {
       "name": "THRUSTER",
-      "description": "On turn end, pushes the ship 1 space to the right."
+      "description": "On turn end, pushes the ship 1 space <c=keyword>RIGHT</c>."
     },
     "ThrusterV2Left": {
       "name": "THRUSTER V2",
-      "description": "On turn end, pushes the ship 2 spaces to the right."
+      "description": "On turn end, pushes the ship 2 spaces <c=keyword>RIGHT</c>."
     },
     "Bubble": {
       "name": "BUBBLE BAY",

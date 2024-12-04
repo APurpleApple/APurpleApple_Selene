@@ -16,6 +16,7 @@ public interface ICustomPart
     public void Render(Ship ship, int localX, G g, Vec v, Vec worldPos) { }
     public bool DoVanillaRender(Ship ship, int localX, G g) => true;
     public void RenderUI(Ship ship, G g, Combat? combat, int localX, string keyPrefix, bool isPreview, Vec v) { }
+    public List<Tooltip>? GetTooltips(State s) => null;
     public int RenderDepth => 0;
     public bool IsTemporary { get; set; }
 }

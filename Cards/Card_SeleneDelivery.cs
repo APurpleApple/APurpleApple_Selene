@@ -45,7 +45,6 @@ namespace APurpleApple.Selene.Cards
 
                     break;
                 case Upgrade.A:
-                    template.discount = -1;
                     actions.Add(new AAddRandomAttachCard() { card = template, amount = 2, destination = CardDestination.Hand});
 
                     break;

@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using APurpleApple.Selene.CardActions;
 using HarmonyLib;
+using Nickel;
 
 namespace APurpleApple.Selene
 {
@@ -18,18 +19,16 @@ namespace APurpleApple.Selene
         public virtual int RenderDepth => 0;
         public bool IsTemporary { get; set; } = true;
 
-        public virtual List<Tooltip> GetTooltips()
+        public virtual List<Tooltip>? GetTooltips(State s)
         {
-            List<Tooltip> tooltips = new List<Tooltip>();
-            tooltips.Add(PMod.glossaries[tooltip]);
-            return tooltips;
+            return null;
         }
 
         public virtual void Destroy(State s, Combat c)
         {
             active = false;
             EffectSpawnerExtension.PartExploding(s, GetPartRect(s));
-            c.Queue(new ASeleneRemovePart() { part = this });
+            c.Queue(new ASeleneRemovePart() { uuid = this.uuid });
             isRendered = false;
         }
 
@@ -46,70 +45,21 @@ namespace APurpleApple.Selene
         }
 
         public virtual bool DoVanillaRender(Ship ship, int localX, G g) => true;
-
+        public virtual void Render(Ship ship, int localX, G g, Vec v, Vec worldPos) { }
+       
         public virtual void RenderUI(Ship ship, G g, Combat? combat, int localX, string keyPrefix, bool isPreview, Vec v)
         {
-            Vec vec = new Vec(localX * 16);
-            int num = (isPreview ? 25 : 34);
-            if (ship.isPlayerShip)
-            {
-                vec.y -= num - 6;
-            }
-
-            Rect rect = new Rect(vec.x - 1.0, vec.y, 17.0, num);
-            Rect value = rect;
-            value.h -= 8.0;
-            if (!ship.isPlayerShip)
-            {
-                value.y += 8.0;
-            }
-
-            Box box = g.Push(new UIKey((UK.part), localX, "selenePart"), rect, value);
+            UIKey key = new UIKey(SUK.part, localX, keyPrefix);
+            Box box = g.boxes.Find(b => b.key == key) ?? new Box();
             Vec xy = box.rect.xy;
 
             if (box.IsHover())
             {
                 Vec pos = xy + new Vec(16.0);
 
-                foreach (var item in GetTooltips())
-                {
-                    g.tooltips.Add(pos, item);
-                }
-
-                if (invincible)
-                {
-                    g.tooltips.Add(pos, new TTGlossary("parttrait.invincible"));
-                }
-                else
-                {
-                    if (damageModifier == PDamMod.armor)
-                    {
-                        g.tooltips.Add(pos, new TTGlossary("parttrait.armor"));
-                    }
-
-                    if (damageModifier == PDamMod.weak)
-                    {
-                        g.tooltips.Add(pos, new TTGlossary("parttrait.weak"));
-                    }
-
-                    if (damageModifier == PDamMod.brittle && !brittleIsHidden)
-                    {
-                        g.tooltips.Add(pos, new TTGlossary("parttrait.brittle"));
-                    }
-                }
-
-                if (stunModifier == PStunMod.stunnable)
-                {
-                    g.tooltips.Add(pos, new TTGlossary("parttrait.stunnable"));
-                }
-
-                if (stunModifier == PStunMod.unstunnable)
-                {
-                    g.tooltips.Add(pos, new TTGlossary("parttrait.unstunnable"));
-                }
-
                 if (stunModifier == PStunMod.breakable)
                 {
+                    g.tooltips.tooltips.RemoveAll((tt)=> tt is TTGlossary ttg && ttg.key == "parttrait.breakable");
                     g.tooltips.Add(pos, PMod.glossaries["Breakable"]);
                 }
 
@@ -117,12 +67,7 @@ namespace APurpleApple.Selene
                 {
                     g.tooltips.Add(pos, PMod.glossaries["SingleUse"]);
                 }
-                if (IsTemporary)
-                {
-                    g.tooltips.Add(pos, PMod.glossaries["Temp"]);
-                }
             }
-            g.Pop();
 
             Color color = new Color(1.0, 1.0, 1.0, 0.8 + Math.Sin(g.state.time * 4.0) * 0.3);
 

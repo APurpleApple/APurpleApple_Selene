@@ -135,10 +135,6 @@ namespace APurpleApple.Selene.Cards
                     break;
             }
 
-            if (state.EnumerateAllArtifacts().Any(a => a is Artifact_CheapRandom))
-            {
-                data.cost--;
-            }
             return data;
         }
 
